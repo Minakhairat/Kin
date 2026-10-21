@@ -3,7 +3,7 @@ import { PricingPackage, PortfolioItem } from '../types';
 export const COMPANY_INFO = {
   name: 'Kin Media Production',
   tagline: 'KEEP IT NEAT',
-  logo: '/assets/aistudio/Untitled-1_a311767c.png',
+  logo: './assets/aistudio/Untitled-1_a311767c.png',
   address: {
     ar: '24 شارع غرناطة، الكوربة، مصر الجديدة — الدور الثاني، شقة 9',
     en: '24 Granada St., Korba, Heliopolis, Cairo — 2nd Floor, Apt 9',
@@ -14,12 +14,12 @@ export const COMPANY_INFO = {
   instagramUrl: 'https://instagram.com/kin.media.production',
   googleMapsUrl: 'https://maps.google.com/?q=24+Granada+Street+Korba+Heliopolis+Cairo+Egypt',
   images: {
-    heroStudio: '/src/assets/images/hero_cinematic_studio_1792602515235.jpg',
-    podcastSet: '/src/assets/images/podcast_studio_set_1792602515409.jpg',
-    reelsProduction: '/src/assets/images/reels_production_behind_scenes_1792602516498.jpg',
-    commercialSet: '/src/assets/images/cinematic_commercial_film_1792602516038.jpg',
-    podcastPoster: '/assets/aistudio/WhatsApp_Image_2026-10-21_at_5.40.48_PM_e7b4858f.jpeg',
-    reelsPoster: '/assets/aistudio/WhatsApp_Image1_2026-10-21_at_5.40.48_PM_64c18a98.jpeg',
+    heroStudio: './assets/images/hero_cinematic_studio_1792602515235.jpg',
+    podcastSet: './assets/images/podcast_studio_set_1792602515409.jpg',
+    reelsProduction: './assets/images/reels_production_behind_scenes_1792602516498.jpg',
+    commercialSet: './assets/images/cinematic_commercial_film_1792602516038.jpg',
+    podcastPoster: './assets/aistudio/WhatsApp_Image_2026-10-21_at_5.40.48_PM_e7b4858f.jpeg',
+    reelsPoster: './assets/aistudio/WhatsApp_Image1_2026-10-21_at_5.40.48_PM_64c18a98.jpeg',
   }
 };
 
@@ -246,7 +246,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     client: 'The Venture Pulse',
     duration: '48:15',
     aspectRatio: '16:9',
-    coverImage: '/src/assets/images/hero_cinematic_studio_1792602515235.jpg',
+    coverImage: './assets/images/hero_cinematic_studio_1792602515235.jpg',
     summary: 'حلقة حوارية مسجلة بنظام 3 كاميرات مع مذيع وضيف، شملت التقطيع والمونتاج الكامل واستخراج 3 كليبات فايرال.',
     specs: {
       cameras: '3x Sony FX6 Cinema Cameras (Dual Close + Master Wide)',
@@ -262,7 +262,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     client: 'L’Atelier Studio',
     duration: '00:45',
     aspectRatio: '9:16',
-    coverImage: '/src/assets/images/reels_production_behind_scenes_1792602516498.jpg',
+    coverImage: './assets/images/reels_production_behind_scenes_1792602516498.jpg',
     summary: 'باقة ريلز شهرية لبراند أزياء، شملت كتابة الهوكس الإبداعية، التصوير في استوديو KIN، ومونتاج سريع الإيقاع.',
     specs: {
       cameras: 'Sony FX3 on Ronin RS3 Pro Gimbal',
@@ -278,7 +278,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     client: 'Kayan Developments',
     duration: '01:30',
     aspectRatio: '16:9',
-    coverImage: '/src/assets/images/cinematic_commercial_film_1792602516038.jpg',
+    coverImage: './assets/images/cinematic_commercial_film_1792602516038.jpg',
     summary: 'فيلم إعلاني تجاري بتصوير سينمائي كامل، كرو متكامل من استوديو KIN، وإخراج احترافي للمنصات الرقمية والتلفزيون.',
     specs: {
       cameras: 'RED V-Raptor 8K + Atlas Orion Anamorphic Lenses',
@@ -294,7 +294,7 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     client: 'Venture Capital Cairo',
     duration: '52:10',
     aspectRatio: '16:9',
-    coverImage: '/src/assets/images/podcast_studio_set_1792602515409.jpg',
+    coverImage: './assets/images/podcast_studio_set_1792602515409.jpg',
     summary: 'تسجيل حلقة بودكاست ثنائية مع مستثمر ومؤسس شركة ناشئة، عزل صوتي كامل في استوديو الكوربة.',
     specs: {
       cameras: '3x Cinema Rigs (Multi-angle synchronized sync)',
