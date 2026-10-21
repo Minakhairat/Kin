@@ -8,14 +8,21 @@ export interface PricingPackage {
   category: ServiceCategory;
   price: number;
   period: string;
-  unit: string;
+  unitAr: string;
+  unitEn: string;
   recommended?: boolean;
-  highlight?: string;
-  features: string[];
-  deliverables: string;
-  sessionTime?: string;
-  revisions?: string;
-  turnaround?: string;
+  highlightAr?: string;
+  highlightEn?: string;
+  featuresAr: string[];
+  featuresEn: string[];
+  deliverablesAr: string;
+  deliverablesEn: string;
+  sessionTimeAr?: string;
+  sessionTimeEn?: string;
+  revisionsAr?: string;
+  revisionsEn?: string;
+  turnaroundAr?: string;
+  turnaroundEn?: string;
   cameras?: string;
   sound?: string;
   clipsCount?: number;
@@ -23,18 +30,29 @@ export interface PricingPackage {
 
 export interface PortfolioItem {
   id: string;
-  title: string;
+  titleAr: string;
+  titleEn: string;
   category: 'podcasts' | 'reels' | 'commercials';
   client: string;
   duration: string;
   aspectRatio: '16:9' | '9:16';
   coverImage: string;
-  summary: string;
+  summaryAr: string;
+  summaryEn: string;
+  instagramUrl: string;
+  instagramCaptionAr: string;
+  instagramCaptionEn: string;
+  likes?: number;
+  views?: string;
   specs: {
-    cameras: string;
-    sound: string;
-    deliverables: string;
-    colorGrade: string;
+    camerasAr: string;
+    camerasEn: string;
+    soundAr: string;
+    soundEn: string;
+    deliverablesAr: string;
+    deliverablesEn: string;
+    colorGradeAr: string;
+    colorGradeEn: string;
   };
 }
 

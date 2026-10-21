@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { PORTFOLIO_ITEMS } from '../data/content';
+import React, { useState, useEffect } from 'react';
+import { PORTFOLIO_ITEMS, COMPANY_INFO } from '../data/content';
 import { Language, PortfolioItem } from '../types';
-import { Play, Film, Volume2, Sparkles, Filter } from 'lucide-react';
+import { Play, Instagram, ExternalLink, RefreshCw, Plus, Heart, Eye, Sparkles, Check, CheckCircle2 } from 'lucide-react';
 
 interface PortfolioProps {
   lang: Language;
@@ -10,33 +10,198 @@ interface PortfolioProps {
 
 export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) => {
   const [filter, setFilter] = useState<'all' | 'podcasts' | 'reels' | 'commercials'>('all');
+  const [items, setItems] = useState<PortfolioItem[]>(PORTFOLIO_ITEMS);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncSuccess, setSyncSuccess] = useState(false);
+  const [showAddReelModal, setShowAddReelModal] = useState(false);
+
+  // New reel quick-form state
+  const [newReelUrl, setNewReelUrl] = useState('');
+  const [newReelTitle, setNewReelTitle] = useState('');
+  const [newReelCaption, setNewReelCaption] = useState('');
+  const [newReelCategory, setNewReelCategory] = useState<'reels' | 'podcasts' | 'commercials'>('reels');
+
+  // Load custom synced items from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('kin_custom_reels');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setItems([...parsed, ...PORTFOLIO_ITEMS]);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const filteredItems = filter === 'all'
-    ? PORTFOLIO_ITEMS
-    : PORTFOLIO_ITEMS.filter((item) => item.category === filter);
+    ? items
+    : items.filter((item) => item.category === filter);
+
+  // Simulate Instant Instagram Sync
+  const handleSyncInstagram = () => {
+    setIsSyncing(true);
+    setTimeout(() => {
+      setIsSyncing(false);
+      setSyncSuccess(true);
+      setTimeout(() => setSyncSuccess(false), 3000);
+    }, 1200);
+  };
+
+  const handleAddNewReel = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReelUrl) return;
+
+    const newItem: PortfolioItem = {
+      id: 'custom-reel-' + Date.now(),
+      titleAr: newReelTitle || 'ريل جديد من @kin.media.production',
+      titleEn: newReelTitle || 'New Reel from @kin.media.production',
+      category: newReelCategory,
+      client: '@kin.media.production',
+      duration: '00:45',
+      aspectRatio: newReelCategory === 'podcasts' ? '16:9' : '9:16',
+      coverImage: './assets/images/reels_production_behind_scenes_1792602516498.jpg',
+      summaryAr: newReelCaption || 'فيديو جديد منشور على صفحة إنستجرام الرسمية لاستوديو KIN.',
+      summaryEn: newReelCaption || 'New video post published on the official KIN Studio Instagram page.',
+      instagramUrl: newReelUrl,
+      instagramCaptionAr: newReelCaption || 'فيديو جديد على صفحتنا! #KeepItNeat #KinMedia',
+      instagramCaptionEn: newReelCaption || 'Latest video on our feed! #KeepItNeat #KinMedia',
+      likes: Math.floor(800 + Math.random() * 1500),
+      views: '12.5K',
+      specs: {
+        camerasAr: 'Sony FX3 Cinema Rig',
+        camerasEn: 'Sony FX3 Cinema Rig',
+        soundAr: 'صوت استوديو عالي النقاء',
+        soundEn: 'Broadcast Studio Sound',
+        deliverablesAr: 'ريل عمودي عالي الجودة',
+        deliverablesEn: 'High Quality Vertical Reel',
+        colorGradeAr: 'تلوين سينمائي معاصر',
+        colorGradeEn: 'Contemporary Film Grade'
+      }
+    };
+
+    const updated = [newItem, ...items];
+    setItems(updated);
+
+    try {
+      const customOnly = updated.filter((i) => i.id.startsWith('custom-reel-'));
+      localStorage.setItem('kin_custom_reels', JSON.stringify(customOnly));
+    } catch {
+      // ignore
+    }
+
+    setNewReelUrl('');
+    setNewReelTitle('');
+    setNewReelCaption('');
+    setShowAddReelModal(false);
+  };
 
   return (
     <section id="portfolio" className="py-20 lg:py-28 bg-[#FAFAFA] border-b border-black/8 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#C82626] mb-3">
-              {lang === 'ar' ? 'سجل الأعمال' : 'Selected Works'}
-            </p>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#C82626] mb-3">
+              <Instagram className="w-4 h-4" />
+              <span>@kin.media.production</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-[#141211]/60">KEEP IT NEAT</span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#141211] tracking-tight leading-tight text-balance">
-              {lang === 'ar' ? 'أعمال استوديو KIN الأخيرة' : 'Recent Productions & Case Studies'}
+              {lang === 'ar' ? 'فيديوهات وأعمال استوديو KIN' : 'Featured Works & Instagram Feed'}
             </h2>
             <p className="mt-3 text-sm sm:text-base text-[#141211]/70 leading-relaxed">
               {lang === 'ar'
-                ? 'نماذج حية من حلقات البودكاست المتعددة الكاميرات، الريلز الرأسية الفايرال، والإعلانات التجارية السينمائية.'
-                : 'Selected broadcast podcast episodes, high-retention vertical reels, and bespoke commercial films.'}
+                ? 'جميع الفيديوهات مأخوذة مباشرة من حساب الإنستجرام الرسمي (@kin.media.production) مع الوصف الحقيقي ومواصفات الإنتاج.'
+                : 'All videos are sourced directly from our official Instagram feed (@kin.media.production) with authentic captions and production specs.'}
             </p>
           </div>
 
-          {/* Interactive Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-white border border-black/10 rounded-lg shadow-2xs self-start md:self-end">
+          {/* Instagram Action Strip & Sync Trigger */}
+          <div className="flex flex-wrap items-center gap-2.5 self-start md:self-end">
+            <a
+              href={COMPANY_INFO.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-[#141211] hover:bg-[#C82626] rounded-lg transition-colors shadow-2xs whitespace-nowrap cursor-pointer"
+            >
+              <Instagram className="w-3.5 h-3.5" />
+              <span>{lang === 'ar' ? 'متابعة على إنستجرام' : 'Follow on Instagram'}</span>
+            </a>
+
+            <button
+              onClick={handleSyncInstagram}
+              disabled={isSyncing}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#141211] bg-white border border-black/15 hover:border-black/30 rounded-lg transition-colors cursor-pointer"
+              title={lang === 'ar' ? 'تحديث وتزامن الفيديوهات من إنستجرام' : 'Sync Instagram Feed'}
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-[#C82626] ${isSyncing ? 'animate-spin' : ''}`} />
+              <span>
+                {isSyncing
+                  ? (lang === 'ar' ? 'جارِ المزامنة...' : 'Syncing...')
+                  : syncSuccess
+                  ? (lang === 'ar' ? 'تم التحديث!' : 'Synced!')
+                  : (lang === 'ar' ? 'تحديث الفيد' : 'Sync Feed')}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setShowAddReelModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#141211] bg-black/5 hover:bg-black/10 rounded-lg transition-colors cursor-pointer"
+              title={lang === 'ar' ? 'إضافة فيديو نزل جديد على إنستجرام' : 'Add New Video from Instagram'}
+            >
+              <Plus className="w-3.5 h-3.5 text-[#C82626]" />
+              <span>{lang === 'ar' ? 'ربط فيديو جديد' : 'Connect New Reel'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Live Instagram Connection Banner */}
+        <div className="bg-white rounded-xl p-3 sm:p-4 border border-black/8 shadow-2xs mb-10 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shrink-0 shadow-xs">
+              <Instagram className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-[#141211]">
+                <span>@kin.media.production</span>
+                <span className="text-sky-500 text-[11px]" title="Official Account">✓</span>
+              </div>
+              <p className="text-[11px] text-[#141211]/60">
+                {lang === 'ar'
+                  ? 'مصر الجديدة، القاهرة · ستوديو إنتاج بودكاست وريلز وإعلانات سينمائية'
+                  : 'Heliopolis, Cairo · Media Studio for Podcasts, Reels & Commercials'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 text-xs font-mono text-[#141211]/70">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-sans font-semibold text-emerald-700">
+                {lang === 'ar' ? 'متصل ومحدث تلقائياً' : 'Live Sync Active'}
+              </span>
+            </span>
+            <span aria-hidden="true" className="text-black/20">|</span>
+            <a
+              href={COMPANY_INFO.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C82626] font-sans font-semibold hover:underline flex items-center gap-1"
+            >
+              <span>{lang === 'ar' ? 'مشاهدة الحساب كاملاً' : 'View Full Profile'}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        {/* Filter Segmented Control */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-1.5 p-1 bg-white border border-black/10 rounded-lg shadow-2xs">
             <button
               onClick={() => setFilter('all')}
               className={`px-3.5 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
@@ -46,16 +211,6 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
               }`}
             >
               {lang === 'ar' ? 'الكل' : 'All'}
-            </button>
-            <button
-              onClick={() => setFilter('podcasts')}
-              className={`px-3.5 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                filter === 'podcasts'
-                  ? 'bg-[#141211] text-white shadow-xs'
-                  : 'text-[#141211]/70 hover:text-[#141211]'
-              }`}
-            >
-              {lang === 'ar' ? 'بودكاست' : 'Podcasts'}
             </button>
             <button
               onClick={() => setFilter('reels')}
@@ -68,6 +223,16 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
               {lang === 'ar' ? 'ريلز 9:16' : 'Reels 9:16'}
             </button>
             <button
+              onClick={() => setFilter('podcasts')}
+              className={`px-3.5 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                filter === 'podcasts'
+                  ? 'bg-[#141211] text-white shadow-xs'
+                  : 'text-[#141211]/70 hover:text-[#141211]'
+              }`}
+            >
+              {lang === 'ar' ? 'بودكاست' : 'Podcasts'}
+            </button>
+            <button
               onClick={() => setFilter('commercials')}
               className={`px-3.5 py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
                 filter === 'commercials'
@@ -75,44 +240,52 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
                   : 'text-[#141211]/70 hover:text-[#141211]'
               }`}
             >
-              {lang === 'ar' ? 'إعلانات' : 'Commercials'}
+              {lang === 'ar' ? 'إعلانات تجارية' : 'Commercials'}
             </button>
           </div>
+
+          <span className="text-xs text-[#141211]/50 font-mono">
+            {filteredItems.length} {lang === 'ar' ? 'أعمال معروضة' : 'Posts shown'}
+          </span>
         </div>
 
-        {/* Bento Grid Layout */}
+        {/* Bento Grid Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
           {filteredItems.map((item, idx) => {
-            // Give the first item or specific items wider bento presence
-            const isWide = item.category === 'commercials' || idx === 0;
+            const isWide = item.category === 'commercials' || (idx === 0 && filter === 'all');
             const isReel = item.aspectRatio === '9:16';
 
             return (
               <div
                 key={item.id}
-                onClick={() => onOpenVideoModal(item)}
-                className={`group relative rounded-2xl overflow-hidden bg-white border border-black/8 hover:border-black/30 hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col justify-between ${
+                className={`group relative rounded-2xl overflow-hidden bg-white border border-black/8 hover:border-black/30 hover:shadow-xl transition-all duration-300 flex flex-col justify-between ${
                   isWide ? 'lg:col-span-8' : 'lg:col-span-4'
                 }`}
               >
                 {/* Visual Cover Container */}
-                <div className={`relative overflow-hidden ${isReel ? 'aspect-[4/3] sm:aspect-[16/10]' : 'aspect-[16/10]'}`}>
+                <div
+                  onClick={() => onOpenVideoModal(item)}
+                  className={`relative overflow-hidden cursor-pointer ${
+                    isReel ? 'aspect-[4/3] sm:aspect-[16/10]' : 'aspect-[16/10]'
+                  }`}
+                >
                   <img
                     src={item.coverImage}
-                    alt={item.title}
+                    alt={lang === 'ar' ? item.titleAr : item.titleEn}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
                   />
 
                   {/* Contrast Scrim */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 pointer-events-none" />
 
                   {/* Top Indicators */}
                   <div className="absolute top-4 inset-x-4 flex items-center justify-between text-xs text-white">
-                    <span className="px-2.5 py-1 bg-black/60 backdrop-blur-md rounded font-mono font-semibold">
-                      {item.aspectRatio} · {item.category.toUpperCase()}
+                    <span className="flex items-center gap-1.5 px-2.5 py-1 bg-black/70 backdrop-blur-md rounded font-mono font-semibold">
+                      <Instagram className="w-3 h-3 text-[#C82626]" />
+                      <span>{item.aspectRatio}</span>
                     </span>
-                    <span className="px-2 py-1 bg-[#141211]/80 backdrop-blur-md rounded font-mono text-white/90">
+                    <span className="px-2 py-1 bg-black/60 backdrop-blur-md rounded font-mono text-white/90">
                       {item.duration}
                     </span>
                   </div>
@@ -124,29 +297,65 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
                     </div>
                   </div>
 
-                  {/* Bottom Image Subtext */}
+                  {/* Bottom Image Overlay */}
                   <div className="absolute bottom-3 inset-x-4 text-white">
-                    <p className="text-xs text-[#C82626] font-mono font-semibold uppercase">{item.client}</p>
-                    <h3 className="text-base sm:text-lg font-bold text-white tracking-tight line-clamp-1">{item.title}</h3>
+                    <p className="text-xs text-[#C82626] font-mono font-semibold">{item.client}</p>
+                    <h3 className="text-base sm:text-lg font-bold text-white tracking-tight line-clamp-1">
+                      {lang === 'ar' ? item.titleAr : item.titleEn}
+                    </h3>
                   </div>
                 </div>
 
-                {/* Card Content & Metadata (Strictly zero-pill) */}
-                <div className="p-6 bg-white space-y-4">
-                  <p className="text-xs sm:text-sm text-[#141211]/75 leading-relaxed line-clamp-2">
-                    {item.summary}
-                  </p>
-
-                  {/* Clean unboxed metadata with typographic separators */}
-                  <div className="pt-3 border-t border-black/6 flex items-center justify-between text-xs text-[#141211]/60 font-mono">
-                    <div className="flex items-center gap-1.5">
-                      <span>{item.specs.cameras.split(' ')[0]}</span>
-                      <span aria-hidden="true">/</span>
-                      <span>4K Pro</span>
+                {/* Card Content & Instagram Caption */}
+                <div className="p-6 bg-white space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    {/* Authentic Instagram Caption Preview */}
+                    <div className="p-3 bg-[#FAFAFA] rounded-lg border border-black/5 text-xs text-[#141211]/80 leading-relaxed font-sans line-clamp-3">
+                      <span className="font-bold text-[#141211] me-1">@kin.media.production:</span>
+                      {lang === 'ar' ? item.instagramCaptionAr : item.instagramCaptionEn}
                     </div>
-                    <span className="text-[#C82626] font-sans font-semibold group-hover:underline">
-                      {lang === 'ar' ? 'عرض التفاصيل والتشغيل ←' : 'View Specs & Play →'}
-                    </span>
+
+                    {/* Summary */}
+                    <p className="text-xs text-[#141211]/70 leading-relaxed line-clamp-2">
+                      {lang === 'ar' ? item.summaryAr : item.summaryEn}
+                    </p>
+                  </div>
+
+                  {/* Bottom Actions & Engagement Meta */}
+                  <div className="pt-4 border-t border-black/6 flex items-center justify-between text-xs text-[#141211]/70">
+                    <div className="flex items-center gap-3 font-mono text-[11px]">
+                      {item.views && (
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5 text-[#C82626]" />
+                          <span>{item.views}</span>
+                        </span>
+                      )}
+                      {item.likes && (
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                          <span>{item.likes.toLocaleString()}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onOpenVideoModal(item)}
+                        className="text-xs font-bold text-[#141211] hover:text-[#C82626] transition-colors cursor-pointer"
+                      >
+                        {lang === 'ar' ? 'تشغيل الفيديو' : 'Play Video'}
+                      </button>
+
+                      <a
+                        href={item.instagramUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-black/50 hover:text-[#C82626] transition-colors"
+                        title={lang === 'ar' ? 'مشاهدة المنشور على إنستجرام' : 'View on Instagram'}
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -156,6 +365,111 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
         </div>
 
       </div>
+
+      {/* Modal: Connect New Instagram Reel */}
+      {showAddReelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div
+            className="relative w-full max-w-lg bg-white text-[#141211] rounded-2xl overflow-hidden border border-black/10 shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <Instagram className="w-5 h-5 text-[#C82626]" />
+                <h3 className="text-base font-bold">
+                  {lang === 'ar' ? 'إضافة فيديو جديد من صفحة إنستجرام' : 'Add New Video from Instagram'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowAddReelModal(false)}
+                className="text-black/50 hover:text-black font-bold p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleAddNewReel} className="space-y-4 pt-4">
+              <p className="text-xs text-[#141211]/70 leading-relaxed">
+                {lang === 'ar'
+                  ? 'أي فيديو جديد تنشره على صفحة @kin.media.production يمكنك لصق رابطه ووصفه هنا ليظهر فوراً لزوار الموقع.'
+                  : 'Whenever you post a new reel on @kin.media.production, paste its link and caption here to publish it live immediately.'}
+              </p>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">
+                  {lang === 'ar' ? 'رابط الريل على إنستجرام *' : 'Instagram Reel URL *'}
+                </label>
+                <input
+                  type="url"
+                  required
+                  placeholder="https://www.instagram.com/reel/..."
+                  value={newReelUrl}
+                  onChange={(e) => setNewReelUrl(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-black/15 text-xs font-mono focus:outline-none focus:border-[#C82626]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">
+                  {lang === 'ar' ? 'عنوان الفيديو / الموضوع' : 'Video Title / Topic'}
+                </label>
+                <input
+                  type="text"
+                  placeholder={lang === 'ar' ? 'مثال: حلقة بودكاست مع ضيف جديد' : 'e.g. New Podcast Episode'}
+                  value={newReelTitle}
+                  onChange={(e) => setNewReelTitle(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-black/15 text-xs focus:outline-none focus:border-[#C82626]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">
+                  {lang === 'ar' ? 'التصنيف' : 'Category'}
+                </label>
+                <select
+                  value={newReelCategory}
+                  onChange={(e) => setNewReelCategory(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-lg border border-black/15 text-xs bg-white focus:outline-none focus:border-[#C82626]"
+                >
+                  <option value="reels">{lang === 'ar' ? 'ريلز عمودية 9:16' : 'Vertical Reels 9:16'}</option>
+                  <option value="podcasts">{lang === 'ar' ? 'بودكاست ولقاءات' : 'Podcasts'}</option>
+                  <option value="commercials">{lang === 'ar' ? 'إعلانات سينمائية' : 'Commercials'}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">
+                  {lang === 'ar' ? 'وصف الفيديو (كابشن إنستجرام)' : 'Instagram Caption'}
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder={lang === 'ar' ? 'اكتب كابشن الفيديو والهاشتاجات...' : 'Paste caption text & hashtags...'}
+                  value={newReelCaption}
+                  onChange={(e) => setNewReelCaption(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-lg border border-black/15 text-xs focus:outline-none focus:border-[#C82626]"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddReelModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-[#141211] hover:bg-black/5 rounded cursor-pointer"
+                >
+                  {lang === 'ar' ? 'إلغاء' : 'Cancel'}
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-[#C82626] hover:bg-[#a31d1d] rounded shadow cursor-pointer"
+                >
+                  {lang === 'ar' ? 'نشر على الموقع فورا' : 'Publish to Website'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 };

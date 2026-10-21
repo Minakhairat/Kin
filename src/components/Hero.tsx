@@ -130,20 +130,30 @@ export const Hero: React.FC<HeroProps> = ({
                 <button
                   onClick={() =>
                     onOpenVideoModal({
-                      title: lang === 'ar' ? 'شوريل استوديو KIN الرسمي 2026' : 'KIN Official Studio Showreel 2026',
+                      id: 'hero-showreel',
+                      titleAr: 'شوريل استوديو KIN الرسمي — الكوربة، القاهرة',
+                      titleEn: 'Official KIN Studio Showreel — Korba, Cairo',
                       category: 'podcasts',
-                      client: 'KIN Media Production',
+                      client: '@kin.media.production',
                       duration: '02:15',
+                      aspectRatio: '16:9',
                       coverImage: COMPANY_INFO.images.heroStudio,
-                      summary:
-                        lang === 'ar'
-                          ? 'جولة استكشافية حصرية داخل استوديو KIN بالكوربة: جلسات تصوير بودكاست متعددة الكاميرات، إضاءات سينمائية، وصناعة ريلز شهرية بجودة تلفزيونية.'
-                          : 'An exclusive walkthrough inside KIN Studio in Korba: multi-cam podcast sessions, broadcast audio chains, and monthly reels production.',
+                      summaryAr: 'جولة استكشافية حصرية داخل استوديو KIN بالكوربة: جلسات تصوير بودكاست متعددة الكاميرات، إضاءات سينمائية، وصناعة ريلز شهرية بجودة تلفزيونية.',
+                      summaryEn: 'An exclusive walkthrough inside KIN Studio in Korba: multi-cam podcast sessions, broadcast audio chains, and monthly reels production.',
+                      instagramUrl: 'https://instagram.com/kin.media.production',
+                      instagramCaptionAr: 'لقطات من داخل ستوديو KIN بالكوربة. إضاءات، كاميرات، وصوت استوديو احترافي لخدمة فكرتك. #KeepItNeat #KinMedia #Heliopolis',
+                      instagramCaptionEn: 'Inside KIN Studio in Korba. Cinematic lighting, broadcast cameras, and studio sound to elevate your story. #KeepItNeat #KinMedia #Heliopolis',
+                      likes: 3420,
+                      views: '48.9K',
                       specs: {
-                        cameras: 'Sony Cinema Line (FX6 / FX3) 4K ProRes',
-                        sound: 'Shure SM7B Broadcast Chain',
-                        deliverables: 'Multi-cam YouTube Edit + Social Shorts',
-                        colorGrade: 'Signature Neat Editorial Grade',
+                        camerasAr: 'Sony Cinema Line (FX6 / FX3) بدقة 4K ProRes',
+                        camerasEn: 'Sony Cinema Line (FX6 / FX3) 4K ProRes',
+                        soundAr: 'مايكات إذاعية Shure SM7B مع عزل صوتي كامل',
+                        soundEn: 'Shure SM7B broadcast chain with acoustic suite',
+                        deliverablesAr: 'مونتاج سينمائي كامل + مقاطع مجهزة للريلز والـ Shorts',
+                        deliverablesEn: 'Full broadcast master + cutdown vertical shorts',
+                        colorGradeAr: 'تلوين نقي يحافظ على درجات البشرة الطبيعية',
+                        colorGradeEn: 'Signature Neat editorial grade with skin preservation',
                       },
                     })
                   }

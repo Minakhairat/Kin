@@ -26,13 +26,13 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-black/8 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-8">
-        {/* Zone 1: Brand Wordmark & Logo */}
-        <a href="#" className="flex items-center gap-3 shrink-0 group">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 flex items-center justify-between gap-8">
+        {/* Zone 1: Brand Wordmark & Logo (Enlarged and bold) */}
+        <a href="#" className="flex items-center gap-3 shrink-0 group py-2">
           <img
             src={COMPANY_INFO.logo}
-            alt="Kin Media Production Logo"
-            className="h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+            alt="Kin Media Production - KEEP IT NEAT"
+            className="h-14 sm:h-16 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
             referrerPolicy="no-referrer"
           />
         </a>

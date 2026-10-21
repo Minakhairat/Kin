@@ -168,16 +168,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   >
                     {formData.service === 'podcasts' ? (
                       <>
-                        <option value="podcast-solo">Solo (10,000 ج)</option>
-                        <option value="podcast-duo">Duo (15,000 ج)</option>
-                        <option value="podcast-doubleday">Double Day (24,000 ج)</option>
-                        <option value="podcast-monthly">Monthly Show (44,000 ج)</option>
+                        <option value="podcast-solo">Solo ({lang === 'ar' ? '10,000 ج' : '10,000 EGP'})</option>
+                        <option value="podcast-duo">Duo ({lang === 'ar' ? '15,000 ج' : '15,000 EGP'})</option>
+                        <option value="podcast-doubleday">Double Day - {lang === 'ar' ? 'المقترحة (24,000 ج)' : 'Recommended (24,000 EGP)'}</option>
+                        <option value="podcast-monthly">Monthly Show ({lang === 'ar' ? '44,000 ج / شهر' : '44,000 EGP / mo'})</option>
                       </>
                     ) : (
                       <>
-                        <option value="reels-basic">Basic (12,000 ج)</option>
-                        <option value="reels-pro">Pro (15,000 ج)</option>
-                        <option value="reels-premium">Premium (22,000 ج)</option>
+                        <option value="reels-basic">Basic ({lang === 'ar' ? '12,000 ج / شهر' : '12,000 EGP / mo'})</option>
+                        <option value="reels-pro">Pro - {lang === 'ar' ? 'المقترحة (15,000 ج / شهر)' : 'Recommended (15,000 EGP / mo)'}</option>
+                        <option value="reels-premium">Premium ({lang === 'ar' ? '22,000 ج / شهر' : '22,000 EGP / mo'})</option>
                       </>
                     )}
                   </select>

@@ -183,11 +183,9 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                     <h3 className={`text-xl font-black tracking-tight ${isRec ? 'text-white' : 'text-[#141211]'}`}>
                       {pkg.name}
                     </h3>
-                    {pkg.deliverables && (
-                      <p className={`text-xs mt-1 ${isRec ? 'text-white/70' : 'text-[#141211]/60'}`}>
-                        {pkg.deliverables}
-                      </p>
-                    )}
+                    <p className={`text-xs mt-1 ${isRec ? 'text-white/70' : 'text-[#141211]/60'}`}>
+                      {lang === 'ar' ? pkg.deliverablesAr : pkg.deliverablesEn}
+                    </p>
                   </div>
 
                   {/* Price Block */}
@@ -201,16 +199,16 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                       </span>
                     </div>
                     <span className={`text-xs font-medium block mt-1 ${isRec ? 'text-white/60' : 'text-[#141211]/50'}`}>
-                      {pkg.unit}
+                      {lang === 'ar' ? pkg.unitAr : pkg.unitEn}
                     </span>
                     <span className={`text-[11px] inline-block mt-1 font-mono uppercase ${isRec ? 'text-[#C82626]' : 'text-black/40'}`}>
-                      {lang === 'ar' ? 'سعر التصوير بالاستوديو' : 'In-studio price'}
+                      {lang === 'ar' ? 'سعر التصوير بالاستوديو' : 'In-studio production rate'}
                     </span>
                   </div>
 
                   {/* Features List */}
                   <ul className="space-y-3 mb-8 text-xs sm:text-sm">
-                    {pkg.features.map((feature, idx) => (
+                    {(lang === 'ar' ? pkg.featuresAr : pkg.featuresEn).map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2.5">
                         <Check className={`w-4 h-4 shrink-0 mt-0.5 ${isRec ? 'text-[#C82626]' : 'text-[#C82626]'}`} />
                         <span className={isRec ? 'text-white/85' : 'text-[#141211]/80'}>
@@ -437,7 +435,7 @@ export const PricingCalculator: React.FC<PricingCalculatorProps> = ({
                   {lang === 'ar' ? 'ملخص الحجز المخصص' : 'Custom Config Summary'}
                 </p>
                 <div className="text-base font-bold">{currentSelectedPkg.name} — {currentSelectedPkg.category === 'podcasts' ? (lang === 'ar' ? 'بودكاست' : 'Podcast') : (lang === 'ar' ? 'ريلز' : 'Reels')}</div>
-                <div className="text-xs text-white/70 mt-1">{currentSelectedPkg.deliverables}</div>
+                <div className="text-xs text-white/70 mt-1">{lang === 'ar' ? currentSelectedPkg.deliverablesAr : currentSelectedPkg.deliverablesEn}</div>
                 
                 <div className="my-4 pt-3 border-t border-white/10 text-xs space-y-1.5 text-white/75 font-mono">
                   <div className="flex justify-between">

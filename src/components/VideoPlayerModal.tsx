@@ -54,7 +54,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             </span>
             <span className="text-xs text-white/50">·</span>
             <span className="text-sm font-bold text-white truncate max-w-sm">
-              {item.title}
+              {lang === 'ar' ? item.titleAr : item.titleEn}
             </span>
           </div>
 
@@ -79,7 +79,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             >
               <img
                 src={item.coverImage}
-                alt={item.title}
+                alt={lang === 'ar' ? item.titleAr : item.titleEn}
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
               />
@@ -132,36 +132,53 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
           <div className="w-full lg:w-80 flex flex-col justify-between space-y-6 shrink-0">
             <div>
               <div className="text-xs uppercase font-mono tracking-widest text-[#C82626] mb-1">
-                {lang === 'ar' ? 'بيانات المشروع' : 'Project Breakdown'}
+                {lang === 'ar' ? 'بيانات العمل من إنستجرام' : 'Instagram Project Details'}
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
-              <p className="text-xs text-white/60 mb-4 font-mono">{lang === 'ar' ? 'العميل:' : 'Client:'} {item.client}</p>
-
-              <p className="text-xs sm:text-sm text-white/80 leading-relaxed mb-6">
-                {item.summary}
+              <h3 className="text-lg font-bold text-white mb-1">
+                {lang === 'ar' ? item.titleAr : item.titleEn}
+              </h3>
+              <p className="text-xs text-white/60 mb-3 font-mono">
+                {lang === 'ar' ? 'الحساب:' : 'Account:'} {item.client}
               </p>
 
-              <div className="space-y-3 pt-4 border-t border-white/10 text-xs">
+              {/* Instagram Caption */}
+              <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-xs text-white/85 leading-relaxed mb-4">
+                <span className="text-[#C82626] font-bold block mb-1">
+                  {lang === 'ar' ? 'وصف الفيديو (Caption):' : 'Post Caption:'}
+                </span>
+                {lang === 'ar' ? item.instagramCaptionAr : item.instagramCaptionEn}
+              </div>
+
+              <div className="space-y-2.5 pt-3 border-t border-white/10 text-xs">
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'الكاميرات والعدسات:' : 'Cameras & Rigs:'}</span>
-                  <span className="font-semibold text-white/90">{item.specs.cameras}</span>
+                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.camerasAr : item.specs.camerasEn}</span>
                 </div>
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'هندسة الصوت:' : 'Sound Setup:'}</span>
-                  <span className="font-semibold text-white/90">{item.specs.sound}</span>
+                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.soundAr : item.specs.soundEn}</span>
                 </div>
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'المخرجات والتسليم:' : 'Deliverables:'}</span>
-                  <span className="font-semibold text-white/90">{item.specs.deliverables}</span>
+                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.deliverablesAr : item.specs.deliverablesEn}</span>
                 </div>
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'تلوين سينمائي:' : 'Color Grading:'}</span>
-                  <span className="font-semibold text-white/90">{item.specs.colorGrade}</span>
+                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.colorGradeAr : item.specs.colorGradeEn}</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-white/10">
+            <div className="pt-4 border-t border-white/10 space-y-2">
+              <a
+                href={item.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 text-xs font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/15 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <span>{lang === 'ar' ? 'مشاهدة الريل على إنستجرام ↗' : 'Watch Reel on Instagram ↗'}</span>
+              </a>
+
               <button
                 onClick={() => {
                   onClose();
