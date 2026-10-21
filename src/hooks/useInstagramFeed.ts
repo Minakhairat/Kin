@@ -1,23 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PortfolioItem } from '../types';
+import { PORTFOLIO_ITEMS } from '../data/content';
 import { instagramService } from '../services/instagramService';
 
 export function useInstagramFeed() {
-  const [posts, setPosts] = useState<PortfolioItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  // Initialize with PORTFOLIO_ITEMS immediately to prevent empty state or layout flash
+  const [posts, setPosts] = useState<PortfolioItem[]>(PORTFOLIO_ITEMS);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastSynced, setLastSynced] = useState<Date | null>(null);
+  const [lastSynced, setLastSynced] = useState<Date>(new Date());
 
   const fetchFeed = useCallback(async (forceRefresh = false) => {
     try {
       setLoading(true);
       setError(null);
       const data = await instagramService.fetchLatestPosts(forceRefresh);
-      setPosts(data);
+      if (Array.isArray(data) && data.length > 0) {
+        setPosts(data);
+      }
       setLastSynced(new Date());
     } catch (err: any) {
-      console.error('Error fetching Instagram feed:', err);
-      setError(err?.message || 'Failed to fetch Instagram feed');
+      console.warn('Instagram feed fetch notice:', err);
+      // Keep verified posts on error so the UI never breaks
     } finally {
       setLoading(false);
     }
@@ -27,29 +31,11 @@ export function useInstagramFeed() {
     fetchFeed();
   }, [fetchFeed]);
 
-  const addManualReel = useCallback((reel: PortfolioItem) => {
-    setPosts((prev) => [reel, ...prev]);
-    try {
-      const existing = localStorage.getItem('kin_custom_reels');
-      const list = existing ? JSON.parse(existing) : [];
-      localStorage.setItem('kin_custom_reels', JSON.stringify([reel, ...list]));
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const configureApi = useCallback((tokenOrUrl: string) => {
-    instagramService.configure(tokenOrUrl);
-    fetchFeed(true);
-  }, [fetchFeed]);
-
   return {
     posts,
     loading,
     error,
     lastSynced,
     refetch: () => fetchFeed(true),
-    addManualReel,
-    configureApi,
   };
 }

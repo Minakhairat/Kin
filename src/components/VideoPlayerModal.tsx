@@ -152,19 +152,27 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
               <div className="space-y-2.5 pt-3 border-t border-white/10 text-xs">
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'الكاميرات والعدسات:' : 'Cameras & Rigs:'}</span>
-                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.camerasAr : item.specs.camerasEn}</span>
+                  <span className="font-semibold text-white/90">
+                    {lang === 'ar' ? (item.specs?.camerasAr || 'Sony Cinema 4K') : (item.specs?.camerasEn || 'Sony Cinema 4K')}
+                  </span>
                 </div>
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'هندسة الصوت:' : 'Sound Setup:'}</span>
-                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.soundAr : item.specs.soundEn}</span>
+                  <span className="font-semibold text-white/90">
+                    {lang === 'ar' ? (item.specs?.soundAr || 'صوت استوديو احترافي') : (item.specs?.soundEn || 'Broadcast Studio Audio')}
+                  </span>
                 </div>
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'المخرجات والتسليم:' : 'Deliverables:'}</span>
-                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.deliverablesAr : item.specs.deliverablesEn}</span>
+                  <span className="font-semibold text-white/90">
+                    {lang === 'ar' ? (item.specs?.deliverablesAr || 'فيديو ماستر عالي الدقة') : (item.specs?.deliverablesEn || '4K Master Video File')}
+                  </span>
                 </div>
                 <div>
                   <span className="text-white/50 block font-mono">{lang === 'ar' ? 'تلوين سينمائي:' : 'Color Grading:'}</span>
-                  <span className="font-semibold text-white/90">{lang === 'ar' ? item.specs.colorGradeAr : item.specs.colorGradeEn}</span>
+                  <span className="font-semibold text-white/90">
+                    {lang === 'ar' ? (item.specs?.colorGradeAr || 'تلوين سينمائي نقي') : (item.specs?.colorGradeEn || 'Signature Neat Color Grade')}
+                  </span>
                 </div>
               </div>
             </div>
