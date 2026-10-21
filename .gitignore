@@ -1,6 +1,6 @@
 node_modules/
 build/
-dist/
+# dist/ (tracked for direct branch deployments)
 coverage/
 .DS_Store
 *.log

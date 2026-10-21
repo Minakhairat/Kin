@@ -44,6 +44,9 @@ export interface PortfolioItem {
   instagramCaptionEn: string;
   likes?: number;
   views?: string;
+  instagramShortcode?: string;
+  instagramEmbedUrl?: string;
+  videoUrl?: string;
   specs: {
     camerasAr: string;
     camerasEn: string;

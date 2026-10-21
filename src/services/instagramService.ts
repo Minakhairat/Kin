@@ -116,6 +116,9 @@ class InstagramService {
     const localized = this.localizeCaption(media.caption || '');
     const isReel = category === 'reels';
 
+    const shortcode = media.permalink?.match(/\/(p|reel)\/([^/]+)/)?.[2] || media.id;
+    const isReelMedia = isReel || media.permalink?.includes('/reel/');
+
     return {
       id: media.id || `insta-${Date.now()}`,
       titleAr: (media.caption?.split('\n')[0]?.slice(0, 45) || 'ريل من @kin.media.production'),
@@ -124,10 +127,14 @@ class InstagramService {
       client: '@kin.media.production',
       duration: isReel ? '00:45' : '40:00',
       aspectRatio: isReel ? '9:16' : '16:9',
-      coverImage: media.thumbnail_url || media.media_url || './assets/images/reels_production_behind_scenes_1792602516498.jpg',
+      coverImage: media.thumbnail_url || media.media_url || './assets/images/reels_session.jpg',
       summaryAr: localized.summaryAr,
       summaryEn: localized.summaryEn,
       instagramUrl: media.permalink || `https://www.instagram.com/p/${media.id}/`,
+      instagramShortcode: shortcode,
+      instagramEmbedUrl: isReelMedia
+        ? `https://www.instagram.com/reel/${shortcode}/embed/`
+        : `https://www.instagram.com/p/${shortcode}/embed/`,
       instagramCaptionAr: localized.ar,
       instagramCaptionEn: localized.en,
       likes: media.like_count || Math.floor(1200 + Math.random() * 1500),
