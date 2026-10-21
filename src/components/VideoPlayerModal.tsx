@@ -1,22 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PortfolioItem, Language } from '../types';
-import { X, Play, Pause, Volume2, VolumeX, Instagram, Film, Sparkles, ExternalLink, Check } from 'lucide-react';
+import {
+  X,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize2,
+  ChevronLeft,
+  ChevronRight,
+  Instagram,
+  Sparkles,
+  Calendar,
+  Share2,
+  Check,
+} from 'lucide-react';
 
 interface VideoPlayerModalProps {
   item: PortfolioItem | null;
+  allItems?: PortfolioItem[];
   lang: Language;
   onClose: () => void;
   onBookProject: (serviceCategory: string) => void;
+  onSelectItem?: (item: PortfolioItem) => void;
 }
 
 export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   item,
+  allItems = [],
   lang,
   onClose,
   onBookProject,
+  onSelectItem,
 }) => {
-  // Default to live Instagram embed player for authentic playback
-  const [activePlayer, setActivePlayer] = useState<'instagram' | 'cinema'>('instagram');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -24,17 +42,64 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      if (allItems.length > 1 && onSelectItem && item) {
+        const curIdx = allItems.findIndex((it) => it.id === item.id);
+        if (e.key === 'ArrowRight' && curIdx > 0) {
+          onSelectItem(allItems[curIdx - 1]);
+        } else if (e.key === 'ArrowLeft' && curIdx < allItems.length - 1) {
+          onSelectItem(allItems[curIdx + 1]);
+        }
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, allItems, onSelectItem, item]);
+
+  useEffect(() => {
+    // Autoplay when item changes
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    }
+  }, [item?.id]);
 
   if (!item) return null;
 
   const isVertical = item.aspectRatio === '9:16';
-  const embedUrl = item.instagramEmbedUrl || (item.instagramShortcode
-    ? `https://www.instagram.com/reel/${item.instagramShortcode}/embed/`
-    : `https://www.instagram.com/reel/DeklES2xHNB/embed/`);
+  const videoSource = item.videoUrl || './assets/instagram/DefBSyaMN0Z.mp4';
+  const currentIndex = allItems.findIndex((it) => it.id === item.id);
+  const hasPrev = currentIndex > 0;
+  const hasNext = currentIndex >= 0 && currentIndex < allItems.length - 1;
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  const toggleMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  const toggleFullScreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      if (videoRef.current?.requestFullscreen) {
+        videoRef.current.requestFullscreen();
+      } else if (containerRef.current.requestFullscreen) {
+        containerRef.current.requestFullscreen();
+      }
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleShare = () => {
     if (navigator.clipboard) {
@@ -44,15 +109,28 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
     }
   };
 
+  const handleNext = () => {
+    if (hasNext && onSelectItem) {
+      onSelectItem(allItems[currentIndex + 1]);
+    }
+  };
+
+  const handlePrev = () => {
+    if (hasPrev && onSelectItem) {
+      onSelectItem(allItems[currentIndex - 1]);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-md transition-opacity">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/95 backdrop-blur-xl transition-opacity">
       <div
-        className="relative w-full max-w-5xl bg-[#141211] text-white rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[94vh]"
+        ref={containerRef}
+        className="relative w-full max-w-6xl bg-[#141211] text-white rounded-2xl overflow-hidden border border-white/10 shadow-2xl flex flex-col max-h-[96vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Modal Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-black/60">
-          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
+        {/* Top Minimal Bar */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 bg-black/80">
+          <div className="flex items-center gap-3 overflow-hidden">
             <span className="text-xs font-mono text-[#C82626] font-bold uppercase tracking-wider shrink-0">
               {item.category.toUpperCase()} · {item.aspectRatio}
             </span>
@@ -63,6 +141,39 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Prev / Next controls */}
+            {allItems.length > 1 && onSelectItem && (
+              <div className="flex items-center gap-1 me-2 border-e border-white/10 pe-2">
+                <button
+                  onClick={handlePrev}
+                  disabled={!hasPrev}
+                  className="p-1 rounded text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title={lang === 'ar' ? 'الفيديو السابق' : 'Previous Video'}
+                >
+                  <ChevronRight className="w-5 h-5 rtl:rotate-180" />
+                </button>
+                <span className="text-[11px] font-mono text-white/50">
+                  {currentIndex + 1}/{allItems.length}
+                </span>
+                <button
+                  onClick={handleNext}
+                  disabled={!hasNext}
+                  className="p-1 rounded text-white/70 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title={lang === 'ar' ? 'الفيديو التالي' : 'Next Video'}
+                >
+                  <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={toggleFullScreen}
+              className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title={lang === 'ar' ? 'ملء الشاشة بالكامل' : 'Fullscreen'}
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+
             <button
               onClick={onClose}
               className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
@@ -73,214 +184,139 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
           </div>
         </div>
 
-        {/* Player Selector Bar */}
-        <div className="px-4 sm:px-6 py-2.5 bg-black/40 border-b border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-1.5 p-0.5 bg-white/10 rounded-lg">
-            <button
-              onClick={() => setActivePlayer('instagram')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-                activePlayer === 'instagram'
-                  ? 'bg-[#C82626] text-white shadow-xs'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              <Instagram className="w-3.5 h-3.5" />
-              <span>{lang === 'ar' ? 'مشغل إنستجرام المباشر' : 'Live Instagram Reel'}</span>
-            </button>
-            <button
-              onClick={() => setActivePlayer('cinema')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
-                activePlayer === 'cinema'
-                  ? 'bg-white/20 text-white shadow-xs'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              <Film className="w-3.5 h-3.5" />
-              <span>{lang === 'ar' ? 'عرض الاستوديو السينمائي' : 'Studio Cinema Cut'}</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-white/60">
-            <span className="text-[11px] font-mono">@kin.media.production</span>
-            <button
-              onClick={handleShare}
-              className="px-2 py-1 bg-white/5 hover:bg-white/10 rounded text-[11px] text-white/80 transition-colors cursor-pointer flex items-center gap-1"
-            >
-              {copiedLink ? <Check className="w-3 h-3 text-emerald-400" /> : <ExternalLink className="w-3 h-3" />}
-              <span>{copiedLink ? (lang === 'ar' ? 'تم النسخ!' : 'Copied!') : (lang === 'ar' ? 'نسخ الرابط' : 'Share')}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Player Body */}
-        <div className="overflow-y-auto p-4 sm:p-6 flex flex-col lg:flex-row gap-6 items-center lg:items-stretch">
+        {/* Modal Main Area: Pure Clean Fullscreen Player */}
+        <div className="overflow-y-auto flex flex-col lg:flex-row flex-1 items-stretch">
           
-          {/* Video Preview Frame */}
-          <div className="flex-1 flex items-center justify-center bg-black/80 rounded-xl overflow-hidden p-2 sm:p-3 relative group w-full min-h-[380px] sm:min-h-[500px]">
-            {activePlayer === 'instagram' ? (
-              /* Live Instagram Reel Embed */
-              <div
-                className={`relative w-full overflow-hidden rounded-lg shadow-2xl bg-black flex items-center justify-center ${
-                  isVertical ? 'max-w-[360px] h-[520px] sm:h-[580px]' : 'w-full h-[460px] sm:h-[520px]'
-                }`}
-              >
-                <iframe
-                  src={embedUrl}
-                  title={lang === 'ar' ? item.titleAr : item.titleEn}
-                  className="w-full h-full border-0 rounded-lg bg-black"
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-                  allowFullScreen
-                  loading="lazy"
-                />
-              </div>
-            ) : (
-              /* KIN Studio Cinema Player */
-              <div
-                className={`relative overflow-hidden rounded-lg shadow-2xl border border-white/10 bg-black flex flex-col justify-between ${
-                  isVertical ? 'aspect-[9/16] w-full max-w-[320px]' : 'aspect-video w-full'
-                }`}
-              >
-                <img
-                  src={item.coverImage}
-                  alt={lang === 'ar' ? item.titleAr : item.titleEn}
-                  className={`w-full h-full object-cover transition-transform duration-1000 ${
-                    isPlaying ? 'scale-105 filter brightness-105' : 'scale-100'
-                  }`}
-                  referrerPolicy="no-referrer"
-                />
-
-                {/* Ambient dynamic studio scanlines & vignette */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none" />
-
-                {/* Live REC indicator */}
-                <div className="absolute top-3 inset-x-3 flex items-center justify-between text-xs font-mono pointer-events-none">
-                  <span className="flex items-center gap-1.5 px-2 py-0.5 bg-black/60 rounded text-white/90">
-                    <span className="w-2 h-2 rounded-full bg-[#C82626] animate-pulse" />
-                    <span>REC 4K PRO</span>
-                  </span>
-                  <span className="px-2 py-0.5 bg-black/60 rounded text-white/80">
-                    {item.duration}
-                  </span>
-                </div>
-
-                {/* Center Cinema Play / Pause Button */}
-                <button
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-[#C82626] hover:bg-[#a31d1d] text-white flex items-center justify-center shadow-2xl transition-transform hover:scale-110 active:scale-95 cursor-pointer z-10"
-                >
-                  {isPlaying ? (
-                    <Pause className="w-7 h-7 fill-white" />
-                  ) : (
-                    <Play className="w-7 h-7 fill-white translate-x-0.5" />
-                  )}
-                </button>
-
-                {/* Cinema Controls Bar */}
-                <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/95 to-transparent flex flex-col gap-2 z-10">
-                  <div className="flex items-center justify-between text-xs text-white/80 font-mono">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={() => setIsPlaying(!isPlaying)}
-                        className="hover:text-white cursor-pointer"
-                        title={isPlaying ? 'Pause' : 'Play'}
-                      >
-                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                      </button>
-                      <button
-                        onClick={() => setIsMuted(!isMuted)}
-                        className="hover:text-white cursor-pointer"
-                        title={isMuted ? 'Unmute' : 'Mute'}
-                      >
-                        {isMuted ? <VolumeX className="w-4 h-4 text-[#C82626]" /> : <Volume2 className="w-4 h-4" />}
-                      </button>
-                      <span className="text-[11px] text-white/60">{item.duration}</span>
-                    </div>
-
-                    <button
-                      onClick={() => setActivePlayer('instagram')}
-                      className="text-[11px] text-[#C82626] hover:underline cursor-pointer flex items-center gap-1"
-                    >
-                      <span>{lang === 'ar' ? 'فتح مشغل إنستجرام' : 'Open Instagram View'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+          {/* Pure Full Screen Video Stage (NO Instagram Post Chrome) */}
+          <div className="flex-1 bg-black flex items-center justify-center relative min-h-[420px] sm:min-h-[580px] p-2 sm:p-4 group">
+            <video
+              ref={videoRef}
+              src={videoSource}
+              poster={item.coverImage}
+              autoPlay
+              playsInline
+              loop
+              controls
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              className={`rounded-xl shadow-2xl bg-black ${
+                isVertical
+                  ? 'max-h-[75vh] w-auto aspect-[9/16] object-cover'
+                  : 'max-h-[75vh] w-full aspect-video object-contain'
+              }`}
+            />
           </div>
 
-          {/* Technical Specs & Details Pane */}
-          <div className="w-full lg:w-80 flex flex-col justify-between space-y-5 shrink-0">
-            <div>
-              <div className="flex items-center gap-1.5 text-xs uppercase font-mono tracking-widest text-[#C82626] mb-1">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{lang === 'ar' ? 'بيانات العمل من إنستجرام' : 'Instagram Project Details'}</span>
-              </div>
-              <h3 className="text-base sm:text-lg font-bold text-white mb-1 leading-snug">
-                {lang === 'ar' ? item.titleAr : item.titleEn}
-              </h3>
-              <p className="text-xs text-white/60 mb-3 font-mono flex items-center gap-1.5">
-                <Instagram className="w-3.5 h-3.5 text-[#C82626]" />
-                <span>{item.client}</span>
-              </p>
-
-              {/* Instagram Caption */}
-              <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-xs text-white/85 leading-relaxed mb-4 max-h-40 overflow-y-auto">
-                <span className="text-[#C82626] font-bold block mb-1">
-                  {lang === 'ar' ? 'وصف الفيديو (Instagram Caption):' : 'Post Caption:'}
+          {/* Side Drawer: Studio Specifications & Info */}
+          <div className="w-full lg:w-96 p-6 bg-[#181615] border-t lg:border-t-0 lg:border-s border-white/10 flex flex-col justify-between space-y-6">
+            <div className="space-y-5">
+              
+              {/* Category & Title */}
+              <div>
+                <span className="text-[11px] font-mono text-[#C82626] font-bold uppercase tracking-wider block mb-1">
+                  {item.category === 'podcasts'
+                    ? (lang === 'ar' ? 'بودكاست ولقاءات استوديو KIN' : 'Studio Broadcast Podcast')
+                    : item.category === 'reels'
+                    ? (lang === 'ar' ? 'ريلز عمودية 9:16' : 'Vertical Cinema Reels')
+                    : (lang === 'ar' ? 'إنتاج تجاري وسينمائي' : 'Cinematic Commercial')}
                 </span>
-                {lang === 'ar' ? item.instagramCaptionAr : item.instagramCaptionEn}
+                <h3 className="text-xl font-bold text-white tracking-tight leading-snug">
+                  {lang === 'ar' ? item.titleAr : item.titleEn}
+                </h3>
+                <p className="text-xs text-white/60 mt-1 font-mono">
+                  @kin.media.production · {lang === 'ar' ? 'تصوير استوديو الكوربة' : 'Korba Studio Production'}
+                </p>
+              </div>
+
+              {/* Description */}
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-white/80 leading-relaxed font-sans">
+                {lang === 'ar' ? item.summaryAr : item.summaryEn}
               </div>
 
               {/* Production Technical Specs */}
-              <div className="space-y-2.5 pt-3 border-t border-white/10 text-xs">
-                <div>
-                  <span className="text-white/50 block font-mono text-[11px]">{lang === 'ar' ? 'الكاميرات والعدسات:' : 'Cameras & Rigs:'}</span>
-                  <span className="font-semibold text-white/90">
-                    {lang === 'ar' ? item.specs.camerasAr : item.specs.camerasEn}
-                  </span>
+              {item.specs && (
+                <div className="space-y-2">
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-white/60">
+                    {lang === 'ar' ? 'مواصفات وتجهيزات التصوير' : 'Studio Production Rig & Specs'}
+                  </p>
+                  <div className="space-y-2 text-xs text-white/70 bg-white/5 p-3.5 rounded-xl border border-white/10">
+                    <div className="flex items-start gap-2">
+                      <span className="text-[#C82626] font-bold">▪</span>
+                      <span>
+                        <strong className="text-white font-semibold">
+                          {lang === 'ar' ? 'الكاميرات:' : 'Cameras:'}{' '}
+                        </strong>
+                        {lang === 'ar' ? item.specs.camerasAr : item.specs.camerasEn}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-[#C82626] font-bold">▪</span>
+                      <span>
+                        <strong className="text-white font-semibold">
+                          {lang === 'ar' ? 'الصوت:' : 'Sound:'}{' '}
+                        </strong>
+                        {lang === 'ar' ? item.specs.soundAr : item.specs.soundEn}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-[#C82626] font-bold">▪</span>
+                      <span>
+                        <strong className="text-white font-semibold">
+                          {lang === 'ar' ? 'التسليم:' : 'Deliverables:'}{' '}
+                        </strong>
+                        {lang === 'ar' ? item.specs.deliverablesAr : item.specs.deliverablesEn}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-white/50 block font-mono text-[11px]">{lang === 'ar' ? 'هندسة الصوت:' : 'Sound Setup:'}</span>
-                  <span className="font-semibold text-white/90">
-                    {lang === 'ar' ? item.specs.soundAr : item.specs.soundEn}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-white/50 block font-mono text-[11px]">{lang === 'ar' ? 'المخرجات والتسليم:' : 'Deliverables:'}</span>
-                  <span className="font-semibold text-white/90">
-                    {lang === 'ar' ? item.specs.deliverablesAr : item.specs.deliverablesEn}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-white/50 block font-mono text-[11px]">{lang === 'ar' ? 'التلوين السينمائي:' : 'Color Grading:'}</span>
-                  <span className="font-semibold text-white/90">
-                    {lang === 'ar' ? item.specs.colorGradeAr : item.specs.colorGradeEn}
-                  </span>
-                </div>
+              )}
+
+              {/* Share & Instagram Links */}
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  onClick={handleShare}
+                  className="flex-1 py-2 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-semibold text-white transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+                  <span>{copiedLink ? (lang === 'ar' ? 'تم نسخ الرابط!' : 'Link Copied!') : (lang === 'ar' ? 'مشاركة الفيديو' : 'Share Video')}</span>
+                </button>
+
+                <a
+                  href={item.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-semibold text-white/80 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <Instagram className="w-3.5 h-3.5 text-[#C82626]" />
+                  <span>{lang === 'ar' ? 'إنستجرام ↗' : 'Instagram ↗'}</span>
+                </a>
               </div>
+
             </div>
 
+            {/* Direct Booking CTA */}
             <div className="pt-4 border-t border-white/10 space-y-2">
-              <a
-                href={item.instagramUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-2.5 text-xs font-semibold text-white/90 hover:text-white bg-white/10 hover:bg-white/15 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <Instagram className="w-4 h-4 text-[#C82626]" />
-                <span>{lang === 'ar' ? 'مشاهدة الريل على إنستجرام ↗' : 'Watch Reel on Instagram ↗'}</span>
-              </a>
-
               <button
                 onClick={() => {
                   onClose();
                   onBookProject(item.category);
                 }}
-                className="w-full py-3 text-xs font-bold text-white bg-[#C82626] hover:bg-[#a31d1d] rounded-lg transition-colors shadow-md cursor-pointer text-center block"
+                className="w-full py-3.5 px-4 text-xs font-bold text-white bg-[#C82626] hover:bg-[#a31d1d] rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
               >
-                {lang === 'ar' ? 'طلب إنتاج مشروع مماثل' : 'Commission Similar Production'}
+                <Calendar className="w-4 h-4" />
+                <span>
+                  {lang === 'ar'
+                    ? 'احجز جلسة استوديو مماثلة بالكوربة'
+                    : 'Book a Similar Studio Session in Korba'}
+                </span>
               </button>
+              <p className="text-[10px] text-center text-white/50 font-mono">
+                {lang === 'ar'
+                  ? 'KEEP IT NEAT — فريق واحد يخطط ويصور ويمنتج'
+                  : 'KEEP IT NEAT — One team to plan, shoot, and edit'}
+              </p>
             </div>
+
           </div>
 
         </div>

@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PortfolioItem } from '../types';
-import { PORTFOLIO_ITEMS } from '../data/content';
 import { instagramService } from '../services/instagramService';
 
 export function useInstagramFeed() {
-  // Initialize with PORTFOLIO_ITEMS immediately to prevent empty state or layout flash
-  const [posts, setPosts] = useState<PortfolioItem[]>(PORTFOLIO_ITEMS);
+  const [posts, setPosts] = useState<PortfolioItem[]>(() => instagramService.getStoredItems());
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastSynced, setLastSynced] = useState<Date>(new Date());
@@ -20,8 +18,7 @@ export function useInstagramFeed() {
       }
       setLastSynced(new Date());
     } catch (err: any) {
-      console.warn('Instagram feed fetch notice:', err);
-      // Keep verified posts on error so the UI never breaks
+      console.warn('Instagram feed sync notice:', err);
     } finally {
       setLoading(false);
     }
@@ -29,6 +26,15 @@ export function useInstagramFeed() {
 
   useEffect(() => {
     fetchFeed();
+
+    const unsubscribe = instagramService.subscribe((newPosts) => {
+      setPosts(newPosts);
+      setLastSynced(new Date());
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [fetchFeed]);
 
   return {

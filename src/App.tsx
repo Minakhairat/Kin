@@ -17,6 +17,7 @@ import { Footer } from './components/Footer';
 import { VideoPlayerModal } from './components/VideoPlayerModal';
 import { PosterModal } from './components/PosterModal';
 import { BookingModal } from './components/BookingModal';
+import { useInstagramFeed } from './hooks/useInstagramFeed';
 
 export default function App() {
   const [lang, setLang] = useState<Language>('ar');
@@ -29,6 +30,9 @@ export default function App() {
   const [bookingPkgId, setBookingPkgId] = useState<string | undefined>('podcast-doubleday');
   const [bookingAddons, setBookingAddons] = useState<string[]>([]);
   const [bookingTotal, setBookingTotal] = useState<number | undefined>(undefined);
+
+  // Real-time Instagram feed state
+  const { posts } = useInstagramFeed();
 
   // Sync RTL / LTR on html root
   useEffect(() => {
@@ -69,7 +73,7 @@ export default function App() {
       />
 
       <main>
-        {/* Hero Section */}
+        {/* Hero Section with Clean Real Video Player */}
         <Hero
           lang={lang}
           onOpenBooking={() => handleOpenBooking('podcast-doubleday')}
@@ -95,7 +99,7 @@ export default function App() {
           onViewPoster={(type) => setActivePosterModal(type)}
         />
 
-        {/* Bento Grid Portfolio & Interactive Showreel */}
+        {/* Portfolio with Real Videos in Clean Fullscreen */}
         <Portfolio
           lang={lang}
           onOpenVideoModal={(item) => setActiveVideoModal(item)}
@@ -119,12 +123,14 @@ export default function App() {
       {/* Clean Minimalist Footer */}
       <Footer lang={lang} />
 
-      {/* Interactive Video Showreel Modal */}
+      {/* Pure Fullscreen Cinema Video Player Modal */}
       {activeVideoModal && (
         <VideoPlayerModal
           item={activeVideoModal}
+          allItems={posts}
           lang={lang}
           onClose={() => setActiveVideoModal(null)}
+          onSelectItem={(newItem) => setActiveVideoModal(newItem)}
           onBookProject={(cat) => {
             handleOpenBooking(cat === 'reels' ? 'reels-pro' : 'podcast-doubleday');
           }}

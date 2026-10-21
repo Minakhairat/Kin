@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
-import { COMPANY_INFO } from '../data/content';
-import { Language } from '../types';
-import { Play, Pause, MessageCircle, ArrowRight, ArrowLeft, Volume2, Sparkles, MapPin, CheckCircle2 } from 'lucide-react';
+import { COMPANY_INFO, PORTFOLIO_ITEMS } from '../data/content';
+import { Language, PortfolioItem } from '../types';
+import {
+  Play,
+  Pause,
+  MessageCircle,
+  ArrowRight,
+  ArrowLeft,
+  Volume2,
+  Sparkles,
+  MapPin,
+  CheckCircle2,
+  Instagram,
+  Film,
+  ExternalLink,
+} from 'lucide-react';
 
 interface HeroProps {
   lang: Language;
@@ -14,9 +27,20 @@ export const Hero: React.FC<HeroProps> = ({
   onOpenBooking,
   onOpenVideoModal,
 }) => {
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlayingReel, setIsPlayingReel] = useState(false);
+  const [selectedFeaturedIndex, setSelectedFeaturedIndex] = useState(0);
 
   const ArrowIcon = lang === 'ar' ? ArrowLeft : ArrowRight;
+
+  // 3 featured authentic videos from @kin.media.production
+  const featuredVideos: PortfolioItem[] = [
+    PORTFOLIO_ITEMS[0], // DefBSyaMN0Z - Turning imagination into reality
+    PORTFOLIO_ITEMS[1], // DeCh05EMrkI - Podcast full broadcast
+    PORTFOLIO_ITEMS[2], // DeoYX4fF-Bw - REEL IT IN workshop
+  ];
+
+  const currentFeatured = featuredVideos[selectedFeaturedIndex] || PORTFOLIO_ITEMS[0];
+  const embedSrc = currentFeatured.instagramEmbedUrl || `https://www.instagram.com/reel/${currentFeatured.instagramShortcode}/embed/`;
 
   return (
     <section className="relative overflow-hidden bg-[#FAFAFA] pt-8 pb-16 lg:pt-16 lg:pb-24 border-b border-black/8">
@@ -74,10 +98,11 @@ export const Hero: React.FC<HeroProps> = ({
               </a>
 
               <a
-                href="#pricing"
+                href="#portfolio"
                 className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-[#141211] bg-white border border-black/15 hover:border-black/40 hover:bg-black/5 transition-all rounded cursor-pointer"
               >
-                <span>{lang === 'ar' ? 'استعراض الباكدجات والأسعار' : 'Explore Packages & Rates'}</span>
+                <Instagram className="w-4 h-4 text-[#C82626]" />
+                <span>{lang === 'ar' ? 'مشاهدة فيديوهات إنستجرام' : 'Watch Instagram Reels'}</span>
                 <ArrowIcon className="w-4 h-4" />
               </a>
             </div>
@@ -95,160 +120,151 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Right Column: Hero Visual Container & Interactive Showreel Frame */}
           <div className="lg:col-span-6 flex flex-col justify-center">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-black/10 bg-[#141211] group">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-black/10 bg-[#141211] group flex flex-col">
               
-              {/* Media Image with Studio Grading */}
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <img
-                  src={COMPANY_INFO.images.heroStudio}
-                  alt="KIN Media Production Studio - Multi-Camera Podcast Set"
-                  className={`w-full h-full object-cover transition-transform duration-700 ${isPlaying ? 'scale-105' : 'scale-100'}`}
-                  referrerPolicy="no-referrer"
-                />
-
-                {/* Cinematic Vignette Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 pointer-events-none" />
-
-                {/* Studio Live Indicator Tag */}
-                <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 bg-black/75 backdrop-blur-md rounded text-white text-xs font-mono">
+              {/* Featured Selector Tabs */}
+              <div className="p-2.5 bg-black/70 border-b border-white/10 flex items-center justify-between gap-2 overflow-x-auto text-xs">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <span className="w-2 h-2 rounded-full bg-[#C82626] animate-pulse" />
-                  <span className="font-semibold tracking-wider">REC // 4K MULTI-CAM</span>
+                  <span className="font-mono text-white/90 text-[11px] font-bold">@kin.media.production</span>
                 </div>
 
-                {/* Audio Wave Sim */}
-                <div className="absolute top-4 end-4 flex items-center gap-1 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded text-white/90 text-xs">
-                  <Volume2 className="w-3.5 h-3.5 text-[#C82626]" />
-                  <div className="flex items-end gap-0.5 h-3">
-                    <span className="w-0.5 bg-[#C82626] h-full animate-[pulse_1s_infinite]" />
-                    <span className="w-0.5 bg-white h-2/3" />
-                    <span className="w-0.5 bg-[#C82626] h-full animate-[pulse_1.4s_infinite]" />
-                    <span className="w-0.5 bg-white h-1/2" />
-                  </div>
-                </div>
-
-                {/* Center Interactive Reel Play Trigger */}
-                <button
-                  onClick={() =>
-                    onOpenVideoModal({
-                      id: 'hero-showreel',
-                      titleAr: 'شوريل استوديو KIN الرسمي — الكوربة، القاهرة',
-                      titleEn: 'Official KIN Studio Showreel — Korba, Cairo',
-                      category: 'podcasts',
-                      client: '@kin.media.production',
-                      duration: '02:15',
-                      aspectRatio: '16:9',
-                      coverImage: COMPANY_INFO.images.heroStudio,
-                      summaryAr: 'جولة استكشافية حصرية داخل استوديو KIN بالكوربة: جلسات تصوير بودكاست متعددة الكاميرات، إضاءات سينمائية، وصناعة ريلز شهرية بجودة تلفزيونية.',
-                      summaryEn: 'An exclusive walkthrough inside KIN Studio in Korba: multi-cam podcast sessions, broadcast audio chains, and monthly reels production.',
-                      instagramUrl: 'https://www.instagram.com/reel/DeklES2xHNB/',
-                      instagramShortcode: 'DeklES2xHNB',
-                      instagramEmbedUrl: 'https://www.instagram.com/reel/DeklES2xHNB/embed/',
-                      instagramCaptionAr: 'لقطات من داخل ستوديو KIN بالكوربة. إضاءات، كاميرات، وصوت استوديو احترافي لخدمة فكرتك. #KeepItNeat #KinMedia #Heliopolis',
-                      instagramCaptionEn: 'Inside KIN Studio in Korba. Cinematic lighting, broadcast cameras, and studio sound to elevate your story. #KeepItNeat #KinMedia #Heliopolis',
-                      likes: 3420,
-                      views: '48.9K',
-                      specs: {
-                        camerasAr: 'Sony Cinema Line (FX6 / FX3) بدقة 4K ProRes',
-                        camerasEn: 'Sony Cinema Line (FX6 / FX3) 4K ProRes',
-                        soundAr: 'مايكات إذاعية Shure SM7B مع عزل صوتي كامل',
-                        soundEn: 'Shure SM7B broadcast chain with acoustic suite',
-                        deliverablesAr: 'مونتاج سينمائي كامل + مقاطع مجهزة للريلز والـ Shorts',
-                        deliverablesEn: 'Full broadcast master + cutdown vertical shorts',
-                        colorGradeAr: 'تلوين نقي يحافظ على درجات البشرة الطبيعية',
-                        colorGradeEn: 'Signature Neat editorial grade with skin preservation',
-                      },
-                    })
-                  }
-                  className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-[#C82626] hover:bg-[#a31d1d] text-white flex items-center justify-center shadow-2xl transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer z-10"
-                  aria-label="Play Studio Showreel"
-                >
-                  <Play className="w-7 h-7 fill-white translate-x-0.5" />
-                </button>
-
-                {/* Bottom Frame Details */}
-                <div className="absolute bottom-4 inset-x-4 flex items-end justify-between text-white">
-                  <div>
-                    <p className="text-xs uppercase tracking-widest text-[#C82626] font-semibold">
-                      {lang === 'ar' ? 'شوريل الاستوديو' : 'Official Showreel'}
-                    </p>
-                    <h2 className="text-lg font-bold text-white tracking-tight">
-                      {lang === 'ar' ? 'جلسات البودكاست والريلز في ستوديو KIN' : 'Podcasts & Reels at KIN Studio'}
-                    </h2>
-                  </div>
-                  <div className="text-xs font-mono text-white/70 bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
-                    TC 00:02:15:00
-                  </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {featuredVideos.map((vid, idx) => (
+                    <button
+                      key={vid.id}
+                      onClick={() => {
+                        setSelectedFeaturedIndex(idx);
+                        setIsPlayingReel(true);
+                      }}
+                      className={`px-2.5 py-1 rounded text-[11px] font-semibold transition-all cursor-pointer ${
+                        selectedFeaturedIndex === idx
+                          ? 'bg-[#C82626] text-white shadow-xs'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20'
+                      }`}
+                    >
+                      {idx === 0
+                        ? (lang === 'ar' ? 'ريل سينمائي' : 'Cinema Reel')
+                        : idx === 1
+                        ? (lang === 'ar' ? 'بودكاست' : 'Podcast')
+                        : (lang === 'ar' ? 'ورشة ريلز' : 'Workshop')}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Bottom Quick-Bar inside container */}
-              <div className="bg-[#141211] p-4 text-xs text-white/80 flex items-center justify-between border-t border-white/10">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#C82626]" />
-                  {lang === 'ar' ? 'أعلى مواصفات تصوير وعزل صوتي' : 'Broadcast multi-cam & acoustic isolation'}
-                </span>
-                <button
-                  onClick={() => onOpenBooking()}
-                  className="text-[#C82626] hover:text-white font-semibold transition-colors underline cursor-pointer"
+              {/* Media Container: Either Live Instagram Embed or Interactive Preview */}
+              <div className="relative aspect-[16/11] sm:aspect-[16/10] overflow-hidden bg-black flex items-center justify-center">
+                {isPlayingReel ? (
+                  /* Pure Clean Native Video Player (NO Instagram Post Chrome) */
+                  <div className="relative w-full h-full bg-black flex items-center justify-center">
+                    <video
+                      src={currentFeatured.videoUrl || './assets/instagram/DefBSyaMN0Z.mp4'}
+                      poster={currentFeatured.coverImage}
+                      autoPlay
+                      controls
+                      playsInline
+                      loop
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => setIsPlayingReel(false)}
+                      className="absolute top-3 end-3 px-2 py-1 bg-black/80 hover:bg-[#C82626] text-white text-[11px] font-bold rounded border border-white/20 transition-colors z-20 cursor-pointer shadow-md"
+                    >
+                      ✕ {lang === 'ar' ? 'إغلاق الفيديو' : 'Close Video'}
+                    </button>
+                  </div>
+                ) : (
+                  /* Video Poster with Direct Play Button */
+                  <div
+                    onClick={() => setIsPlayingReel(true)}
+                    className="w-full h-full cursor-pointer relative"
+                  >
+                    <img
+                      src={currentFeatured.coverImage}
+                      alt={lang === 'ar' ? currentFeatured.titleAr : currentFeatured.titleEn}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+
+                    {/* Cinematic Scrim */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/40 pointer-events-none" />
+
+                    {/* Studio Live Indicator Tag */}
+                    <div className="absolute top-4 start-4 flex items-center gap-2 px-3 py-1 bg-black/75 backdrop-blur-md rounded text-white text-xs font-mono">
+                      <span className="w-2 h-2 rounded-full bg-[#C82626] animate-pulse" />
+                      <span className="font-semibold tracking-wider">LIVE INSTAGRAM REEL</span>
+                    </div>
+
+                    {/* Duration badge */}
+                    <div className="absolute top-4 end-4 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded text-white/90 text-xs font-mono">
+                      {currentFeatured.duration}
+                    </div>
+
+                    {/* Center Big Play Button */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsPlayingReel(true);
+                        }}
+                        className="w-16 h-16 rounded-full bg-[#C82626] hover:bg-[#a31d1d] text-white flex items-center justify-center shadow-2xl transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer z-10"
+                        aria-label="Play Reel"
+                      >
+                        <Play className="w-7 h-7 fill-white translate-x-0.5" />
+                      </button>
+                    </div>
+
+                    {/* Bottom Frame Details */}
+                    <div className="absolute bottom-4 inset-x-4 flex items-end justify-between text-white">
+                      <div className="max-w-md">
+                        <p className="text-[11px] uppercase tracking-widest text-[#C82626] font-semibold font-mono">
+                          {currentFeatured.category.toUpperCase()} · @kin.media.production
+                        </p>
+                        <h2 className="text-base sm:text-lg font-bold text-white tracking-tight line-clamp-1 mt-0.5">
+                          {lang === 'ar' ? currentFeatured.titleAr : currentFeatured.titleEn}
+                        </h2>
+                      </div>
+                      <div className="text-xs font-mono text-white/70 bg-black/60 px-2 py-1 rounded backdrop-blur-sm shrink-0">
+                        {currentFeatured.views}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom Quick Bar inside container */}
+              <div className="bg-[#141211] p-3.5 text-xs text-white/80 flex items-center justify-between border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsPlayingReel(true)}
+                    className="text-white hover:text-[#C82626] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5 text-[#C82626]" />
+                    <span>{lang === 'ar' ? 'تشغيل الريل هنا' : 'Play Live Here'}</span>
+                  </button>
+
+                  <span className="text-white/30">|</span>
+
+                  <button
+                    onClick={() => onOpenVideoModal(currentFeatured)}
+                    className="text-white/70 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {lang === 'ar' ? 'شاشة كاملة ومواصفات' : 'Fullscreen & Specs'}
+                  </button>
+                </div>
+
+                <a
+                  href={currentFeatured.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#C82626] hover:underline font-semibold flex items-center gap-1"
                 >
-                  {lang === 'ar' ? 'احجز ميعادك' : 'Book a session'}
-                </button>
+                  <span>{lang === 'ar' ? 'فتح بإنستجرام ↗' : 'Instagram ↗'}</span>
+                </a>
               </div>
 
             </div>
-          </div>
-
-        </div>
-
-        {/* Full-Width 4-Column Proof & Trust Strip (adjacent below hero split) */}
-        <div className="mt-16 pt-8 border-t border-black/8 grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
-          
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#141211] tracking-tight">
-              100%
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#C82626] mt-1">
-              {lang === 'ar' ? 'إنتاج داخلي كامل' : 'In-House Pipeline'}
-            </span>
-            <p className="text-xs text-[#141211]/60 mt-1">
-              {lang === 'ar' ? 'تخطيط، تصوير، مونتاج تحت سقف واحد' : 'Plan, shoot, and edit under one roof'}
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#141211] tracking-tight">
-              3+
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#C82626] mt-1">
-              {lang === 'ar' ? 'كاميرات سينمائية' : 'Cinema Cameras'}
-            </span>
-            <p className="text-xs text-[#141211]/60 mt-1">
-              {lang === 'ar' ? 'زوايا كلوز ووايد متزامنة لكل متحدث' : 'Close-up & wide angles per speaker'}
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#141211] tracking-tight">
-              3–5
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#C82626] mt-1">
-              {lang === 'ar' ? 'أيام عمل للتسليم' : 'Days Turnaround'}
-            </span>
-            <p className="text-xs text-[#141211]/60 mt-1">
-              {lang === 'ar' ? 'مواعيد تسليم ثابتة دون تأخير' : 'Guaranteed punctual delivery queue'}
-            </p>
-          </div>
-
-          <div className="flex flex-col">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#141211] tracking-tight">
-              الكوربة
-            </span>
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#C82626] mt-1">
-              {lang === 'ar' ? 'مصر الجديدة' : 'Heliopolis Studio'}
-            </span>
-            <p className="text-xs text-[#141211]/60 mt-1">
-              {lang === 'ar' ? '24 شارع غرناطة، هدوء وعزل صوتي' : '24 Granada St, easy access & lounge'}
-            </p>
           </div>
 
         </div>
