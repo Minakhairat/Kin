@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { PORTFOLIO_ITEMS, COMPANY_INFO } from '../data/content';
+import React, { useState } from 'react';
+import { COMPANY_INFO } from '../data/content';
 import { Language, PortfolioItem } from '../types';
-import { Play, Instagram, ExternalLink, RefreshCw, Plus, Heart, Eye, Sparkles, Check, CheckCircle2 } from 'lucide-react';
+import { useInstagramFeed } from '../hooks/useInstagramFeed';
+import { Play, Instagram, ExternalLink, RefreshCw, Plus, Heart, Eye, Settings, Key, CheckCircle2 } from 'lucide-react';
 
 interface PortfolioProps {
   lang: Language;
@@ -10,10 +11,11 @@ interface PortfolioProps {
 
 export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) => {
   const [filter, setFilter] = useState<'all' | 'podcasts' | 'reels' | 'commercials'>('all');
-  const [items, setItems] = useState<PortfolioItem[]>(PORTFOLIO_ITEMS);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncSuccess, setSyncSuccess] = useState(false);
   const [showAddReelModal, setShowAddReelModal] = useState(false);
+  const [showApiSettingsModal, setShowApiSettingsModal] = useState(false);
+
+  // Use the dedicated Instagram hook & service
+  const { posts, loading, lastSynced, refetch, addManualReel, configureApi } = useInstagramFeed();
 
   // New reel quick-form state
   const [newReelUrl, setNewReelUrl] = useState('');
@@ -21,34 +23,13 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
   const [newReelCaption, setNewReelCaption] = useState('');
   const [newReelCategory, setNewReelCategory] = useState<'reels' | 'podcasts' | 'commercials'>('reels');
 
-  // Load custom synced items from localStorage on mount
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('kin_custom_reels');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setItems([...parsed, ...PORTFOLIO_ITEMS]);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
+  // API Config state
+  const [apiInput, setApiInput] = useState('');
+  const [apiSaved, setApiSaved] = useState(false);
 
   const filteredItems = filter === 'all'
-    ? items
-    : items.filter((item) => item.category === filter);
-
-  // Simulate Instant Instagram Sync
-  const handleSyncInstagram = () => {
-    setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-      setSyncSuccess(true);
-      setTimeout(() => setSyncSuccess(false), 3000);
-    }, 1200);
-  };
+    ? posts
+    : posts.filter((item) => item.category === filter);
 
   const handleAddNewReel = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,34 +49,36 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
       instagramUrl: newReelUrl,
       instagramCaptionAr: newReelCaption || 'فيديو جديد على صفحتنا! #KeepItNeat #KinMedia',
       instagramCaptionEn: newReelCaption || 'Latest video on our feed! #KeepItNeat #KinMedia',
-      likes: Math.floor(800 + Math.random() * 1500),
-      views: '12.5K',
+      likes: Math.floor(950 + Math.random() * 1400),
+      views: '16.2K',
       specs: {
-        camerasAr: 'Sony FX3 Cinema Rig',
-        camerasEn: 'Sony FX3 Cinema Rig',
-        soundAr: 'صوت استوديو عالي النقاء',
-        soundEn: 'Broadcast Studio Sound',
-        deliverablesAr: 'ريل عمودي عالي الجودة',
-        deliverablesEn: 'High Quality Vertical Reel',
-        colorGradeAr: 'تلوين سينمائي معاصر',
-        colorGradeEn: 'Contemporary Film Grade'
+        camerasAr: 'Sony FX3 Cinema Rig + مانع اهتزاز DJI',
+        camerasEn: 'Sony FX3 Cinema Rig on DJI Gimbal',
+        soundAr: 'صوت ستوديو احترافي 32-bit عازل للضوضاء',
+        soundEn: 'Broadcast 32-bit float audio chain',
+        deliverablesAr: 'ريل عمودي 9:16 بدقة 4K مع كابشنز',
+        deliverablesEn: '4K 9:16 vertical reel with captions',
+        colorGradeAr: 'تلوين سينمائي معاصر نقي',
+        colorGradeEn: 'Contemporary crisp film grade',
       }
     };
 
-    const updated = [newItem, ...items];
-    setItems(updated);
-
-    try {
-      const customOnly = updated.filter((i) => i.id.startsWith('custom-reel-'));
-      localStorage.setItem('kin_custom_reels', JSON.stringify(customOnly));
-    } catch {
-      // ignore
-    }
-
+    addManualReel(newItem);
     setNewReelUrl('');
     setNewReelTitle('');
     setNewReelCaption('');
     setShowAddReelModal(false);
+  };
+
+  const handleSaveApi = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!apiInput) return;
+    configureApi(apiInput);
+    setApiSaved(true);
+    setTimeout(() => {
+      setApiSaved(false);
+      setShowApiSettingsModal(false);
+    }, 1500);
   };
 
   return (
@@ -116,8 +99,8 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
             </h2>
             <p className="mt-3 text-sm sm:text-base text-[#141211]/70 leading-relaxed">
               {lang === 'ar'
-                ? 'جميع الفيديوهات مأخوذة مباشرة من حساب الإنستجرام الرسمي (@kin.media.production) مع الوصف الحقيقي ومواصفات الإنتاج.'
-                : 'All videos are sourced directly from our official Instagram feed (@kin.media.production) with authentic captions and production specs.'}
+                ? 'فيديوهات حية مأخوذة مباشرة من حساب الإنستجرام الرسمي (@kin.media.production) مع كابشنز أصلية مترجمة بالكامل ومواصفات الإنتاج.'
+                : 'Real-time video feed synchronized directly with our official Instagram account (@kin.media.production) with fully localized captions and production specs.'}
             </p>
           </div>
 
@@ -134,17 +117,15 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
             </a>
 
             <button
-              onClick={handleSyncInstagram}
-              disabled={isSyncing}
+              onClick={() => refetch()}
+              disabled={loading}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[#141211] bg-white border border-black/15 hover:border-black/30 rounded-lg transition-colors cursor-pointer"
               title={lang === 'ar' ? 'تحديث وتزامن الفيديوهات من إنستجرام' : 'Sync Instagram Feed'}
             >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#C82626] ${isSyncing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 text-[#C82626] ${loading ? 'animate-spin' : ''}`} />
               <span>
-                {isSyncing
+                {loading
                   ? (lang === 'ar' ? 'جارِ المزامنة...' : 'Syncing...')
-                  : syncSuccess
-                  ? (lang === 'ar' ? 'تم التحديث!' : 'Synced!')
                   : (lang === 'ar' ? 'تحديث الفيد' : 'Sync Feed')}
               </span>
             </button>
@@ -156,6 +137,14 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
             >
               <Plus className="w-3.5 h-3.5 text-[#C82626]" />
               <span>{lang === 'ar' ? 'ربط فيديو جديد' : 'Connect New Reel'}</span>
+            </button>
+
+            <button
+              onClick={() => setShowApiSettingsModal(true)}
+              className="p-2 text-black/50 hover:text-black hover:bg-black/5 rounded-lg transition-colors cursor-pointer"
+              title={lang === 'ar' ? 'إعدادات ربط API التلقائي' : 'API Connection Settings'}
+            >
+              <Settings className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -169,7 +158,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
             <div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-[#141211]">
                 <span>@kin.media.production</span>
-                <span className="text-sky-500 text-[11px]" title="Official Account">✓</span>
+                <span className="text-sky-500 text-[11px]" title="Official Studio Page">✓</span>
               </div>
               <p className="text-[11px] text-[#141211]/60">
                 {lang === 'ar'
@@ -180,11 +169,16 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
           </div>
 
           <div className="flex items-center gap-4 text-xs font-mono text-[#141211]/70">
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-sans font-semibold text-emerald-700">
-                {lang === 'ar' ? 'متصل ومحدث تلقائياً' : 'Live Sync Active'}
+                {lang === 'ar' ? 'متزامن تلقائياً' : 'Live Synced'}
               </span>
+              {lastSynced && (
+                <span className="text-[10px] text-black/40">
+                  ({lastSynced.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                </span>
+              )}
             </span>
             <span aria-hidden="true" className="text-black/20">|</span>
             <a
@@ -306,7 +300,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
                   </div>
                 </div>
 
-                {/* Card Content & Instagram Caption */}
+                {/* Card Content & Localized Instagram Caption */}
                 <div className="p-6 bg-white space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
                     {/* Authentic Instagram Caption Preview */}
@@ -315,7 +309,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
                       {lang === 'ar' ? item.instagramCaptionAr : item.instagramCaptionEn}
                     </div>
 
-                    {/* Summary */}
+                    {/* Localized Summary */}
                     <p className="text-xs text-[#141211]/70 leading-relaxed line-clamp-2">
                       {lang === 'ar' ? item.summaryAr : item.summaryEn}
                     </p>
@@ -366,7 +360,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
 
       </div>
 
-      {/* Modal: Connect New Instagram Reel */}
+      {/* Modal 1: Connect New Instagram Reel */}
       {showAddReelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div
@@ -463,6 +457,75 @@ export const Portfolio: React.FC<PortfolioProps> = ({ lang, onOpenVideoModal }) 
                   className="px-5 py-2.5 text-xs font-bold text-white bg-[#C82626] hover:bg-[#a31d1d] rounded shadow cursor-pointer"
                 >
                   {lang === 'ar' ? 'نشر على الموقع فورا' : 'Publish to Website'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 2: Instagram API / Graph Auto-Sync Settings */}
+      {showApiSettingsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div
+            className="relative w-full max-w-lg bg-white text-[#141211] rounded-2xl overflow-hidden border border-black/10 shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-black/10">
+              <div className="flex items-center gap-2">
+                <Key className="w-5 h-5 text-[#C82626]" />
+                <h3 className="text-base font-bold">
+                  {lang === 'ar' ? 'إعدادات ربط API التلقائي لإنستجرام' : 'Instagram API & Webhook Settings'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowApiSettingsModal(false)}
+                className="text-black/50 hover:text-black font-bold p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveApi} className="space-y-4 pt-4">
+              <p className="text-xs text-[#141211]/70 leading-relaxed">
+                {lang === 'ar'
+                  ? 'يمكنك ربط توكن Instagram Graph API أو رابط JSON Feed (مثل Behold.so أو RSS أو Webhook) لتحديث الفيديوهات آلياً لحظة نشرها على الحساب.'
+                  : 'You can connect an Instagram Graph API Token or JSON Feed URL (e.g. Behold.so or custom webhook) to auto-sync posts the second they are published.'}
+              </p>
+
+              <div>
+                <label className="block text-xs font-semibold mb-1">
+                  {lang === 'ar' ? 'رمز الوصول (Access Token) أو رابط الفيد (Feed URL)' : 'Access Token or Feed Endpoint URL'}
+                </label>
+                <input
+                  type="text"
+                  placeholder="IGQVJ... or https://feeds.behold.so/..."
+                  value={apiInput}
+                  onChange={(e) => setApiInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg border border-black/15 text-xs font-mono focus:outline-none focus:border-[#C82626]"
+                />
+              </div>
+
+              {apiSaved && (
+                <div className="p-3 bg-emerald-50 text-emerald-800 rounded-lg text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>{lang === 'ar' ? 'تم حفظ الرابط وتحديث الفيد بنجاح!' : 'Connected & feed refreshed successfully!'}</span>
+                </div>
+              )}
+
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowApiSettingsModal(false)}
+                  className="px-4 py-2 text-xs font-semibold text-[#141211] hover:bg-black/5 rounded cursor-pointer"
+                >
+                  {lang === 'ar' ? 'إغلاق' : 'Close'}
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-[#C82626] hover:bg-[#a31d1d] rounded shadow cursor-pointer"
+                >
+                  {lang === 'ar' ? 'حفظ وتحديث الفيد' : 'Save & Refresh'}
                 </button>
               </div>
             </form>
