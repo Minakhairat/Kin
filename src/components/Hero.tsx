@@ -165,7 +165,7 @@ export const Hero: React.FC<HeroProps> = ({
                       controls
                       playsInline
                       loop
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain bg-black"
                     />
                     <button
                       onClick={() => setIsPlayingReel(false)}
@@ -215,7 +215,7 @@ export const Hero: React.FC<HeroProps> = ({
                       </button>
                     </div>
 
-                    {/* Bottom Frame Details */}
+                    {/* Bottom Frame Details with Engagement Proof */}
                     <div className="absolute bottom-4 inset-x-4 flex items-end justify-between text-white">
                       <div className="max-w-md">
                         <p className="text-[11px] uppercase tracking-widest text-[#C82626] font-semibold font-mono">
@@ -225,8 +225,18 @@ export const Hero: React.FC<HeroProps> = ({
                           {lang === 'ar' ? currentFeatured.titleAr : currentFeatured.titleEn}
                         </h2>
                       </div>
-                      <div className="text-xs font-mono text-white/70 bg-black/60 px-2 py-1 rounded backdrop-blur-sm shrink-0">
-                        {currentFeatured.views}
+                      
+                      {/* Social proof pills */}
+                      <div className="flex items-center gap-2 text-xs font-mono text-white/90 bg-black/70 px-2.5 py-1 rounded-lg backdrop-blur-sm shrink-0 border border-white/10">
+                        <span className="flex items-center gap-1 text-rose-400">
+                          <span className="text-[10px]">❤️</span>
+                          <span>{currentFeatured.likes?.toLocaleString()}</span>
+                        </span>
+                        <span className="text-white/30">·</span>
+                        <span className="flex items-center gap-1 text-sky-400">
+                          <span className="text-[10px]">💬</span>
+                          <span>{currentFeatured.comments?.toLocaleString()}</span>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -258,12 +268,12 @@ export const Hero: React.FC<HeroProps> = ({
                   href={currentFeatured.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#C82626] hover:underline font-semibold flex items-center gap-1"
+                  className="text-[#C82626] hover:underline flex items-center gap-1 text-[11px] font-mono"
                 >
-                  <span>{lang === 'ar' ? 'فتح بإنستجرام ↗' : 'Instagram ↗'}</span>
+                  <Instagram className="w-3.5 h-3.5" />
+                  <span>@kin.media.production ↗</span>
                 </a>
               </div>
-
             </div>
           </div>
 

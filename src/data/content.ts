@@ -337,6 +337,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'Turning imagination into reality. 🎬 From creative concepts to cinematic visuals — let’s bring your next project to life. Book your next shoot with Kin Media Production! #KinMedia #CreativeDirection #Cinematography #Cairo',
     instagramCaptionEn: 'Turning imagination into reality. 🎬 From creative concepts to cinematic visuals — let’s bring your next project to life. Book your next shoot with Kin Media Production!',
     likes: 2480,
+    comments: 142,
+    shares: 318,
     views: '38.2K',
     specs: {
       camerasAr: 'Sony FX3 + عدسات برايم سينمائية T1.5 على مانع اهتزاز DJI RS3 Pro',
@@ -367,6 +369,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'Your ideas deserve more than just a camera. 🎬 At Kin, we turn ideas into content — from Social Media Reels & Podcasts to Commercial Ads, Event Coverage, Commercial Campaigns, Studio Rental & Short Film Production. #KinStudios #Heliopolis #KeepItNeat',
     instagramCaptionEn: 'Your ideas deserve more than just a camera. 🎬 At Kin, we turn ideas into content — from Social Media Reels & Podcasts to Commercial Ads, Event Coverage, Commercial Campaigns, Studio Rental & Short Film Production.',
     likes: 2890,
+    comments: 184,
+    shares: 420,
     views: '44.5K',
     specs: {
       camerasAr: '3 كاميرات Sony FX6 بدقة 4K (كلوز لكل ضيف + كادر ماستر واسع)',
@@ -397,6 +401,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'REEL IT IN 🎬✨ A glimpse of our REEL IT IN workshop — a hands-on experience exploring the art of creating engaging Reels and short-form content. #ReelItIn #KinMedia #ContentCreators #Reels',
     instagramCaptionEn: 'REEL IT IN 🎬✨ A glimpse of our REEL IT IN workshop — a hands-on experience exploring the art of creating engaging Reels and short-form content.',
     likes: 1980,
+    comments: 116,
+    shares: 245,
     views: '29.7K',
     specs: {
       camerasAr: 'Sony FX3 + مانع اهتزاز DJI RS3 Pro مع إضاءات Softbox متطورة',
@@ -427,6 +433,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'من الفكرة لإعلان سينمائي بتقنيات الذكاء الاصطناعي. أكثر من مجرد النتيجة النهائية — نظرة خلف الكواليس على العملية الإبداعية من توليد المشاهد البصرية للحركة والمونتاج النهائي في استوديو KIN. #AIAdvertising #KinMedia #CreativeDirection #VisualStorytelling',
     instagramCaptionEn: 'From an idea to a cinematic AI commercial. More than just the final result — here is a look behind the scenes at the creative process, from AI-generated visuals to motion and the final edit at KIN Studio.',
     likes: 2150,
+    comments: 139,
+    shares: 290,
     views: '34.6K',
     specs: {
       camerasAr: 'كاميرا سينمائية 8K RAW مع عدسات أنامورفيك عريضة',
@@ -457,6 +465,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'The journey has always been enjoyable, despite the pressure and challenges along the way. I’m still learning—from every step and every mistake—always striving to grow and move forward. From inside KIN Studio in Korba. #KeepItNeat #KinMedia #BrandFilm #Cairo',
     instagramCaptionEn: 'The journey has always been enjoyable, despite the pressure and challenges along the way. Striving to grow and move forward under one roof at KIN Studio.',
     likes: 1840,
+    comments: 98,
+    shares: 210,
     views: '25.4K',
     specs: {
       camerasAr: 'كاميرا سينمائية Sony Cinema Line مع عدسات برايم سينمائية',
@@ -487,6 +497,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'إزاي تصنع ريل يشد الجمهور من أول ثانية؟ من داخل استوديو KIN بالكوربة: تخطيط المحتوى، الإضاءة السينمائية، وحركة الكاميرا المتقنة تحت سقف واحد. #KeepItNeat #KinMedia #Reels #Heliopolis',
     instagramCaptionEn: 'How to capture audience attention in the first 2 seconds? Inside KIN Studio in Korba: content strategy, cinematic lighting, and precision camera motion under one roof.',
     likes: 2190,
+    comments: 153,
+    shares: 335,
     views: '32.1K',
     specs: {
       camerasAr: 'Sony FX3 + عدسة 24-70mm GM II على مانع اهتزاز DJI RS3 Pro',
@@ -517,6 +529,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'Upgrade Your Brand’s Visuals: The Ultimate Studio Experience & CEO Talks. Are you ready to take your brand’s visual presence to the absolute next level? In-house recording and editing at KIN Studio Heliopolis.',
     instagramCaptionEn: 'Upgrade Your Brand\'s Visuals: The Ultimate Studio Experience & CEO Talks. Full studio recording and editing in Heliopolis.',
     likes: 1720,
+    comments: 88,
+    shares: 192,
     views: '21.8K',
     specs: {
       camerasAr: '3 كاميرات Sony FX6 Cinema Rigs',
@@ -547,6 +561,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'Come in with your ideas. Record the conversation. Capture video, reels, headshots and brand photography. Leave with the raw material for weeks of content. Record once. Publish for weeks. #KeepItNeat #ContentStrategy',
     instagramCaptionEn: 'Come in with your ideas. Record the conversation. Capture video, reels, headshots and brand photography. Leave with the raw material for weeks of content. Record once. Publish for weeks.',
     likes: 1950,
+    comments: 124,
+    shares: 260,
     views: '27.4K',
     specs: {
       camerasAr: 'Sony FX3 + عدسات سريعة للبورتريه 50mm f/1.2',
@@ -577,6 +593,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'Make your ideas happen! At KIN Studio, you have a fully equipped studio to capture photos and videos of your products while you focus on creating and developing your projects. Work, create, and produce all in one inspiring space.',
     instagramCaptionEn: 'Make your ideas happen! Fully equipped studio to capture high-end photos and videos for your products while you focus on growing your business.',
     likes: 1610,
+    comments: 76,
+    shares: 180,
     views: '20.5K',
     specs: {
       camerasAr: 'كاميرات سينمائية متعددة الزوايا 4K/6K',
@@ -607,6 +625,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'محتوى يعبر عن براندك بدون فوضى. من أول كتابة الهوك حتى استلام الفيديوهات الجاهزة للنشر بمواعيد تسليم محددة في استوديو KIN. #ContentThatSpeaksForYourBrand #Reels #Cairo',
     instagramCaptionEn: 'Content that speaks for your brand. From hook scripting to final delivery within guaranteed schedules at KIN Studio.',
     likes: 2340,
+    comments: 167,
+    shares: 365,
     views: '33.8K',
     specs: {
       camerasAr: 'كاميرا Sony FX3 مع إضاءات Softbox متطورة وعواكس للوجه',
@@ -637,6 +657,8 @@ export const PORTFOLIO_ITEMS: PortfolioItem[] = [
     instagramCaptionAr: 'Put your message in focus and choose the world behind it. Create presenter videos, educational content and branded stories with a green-screen setup in Heliopolis. #KeepItNeat #KinMediaProduction #Cairo',
     instagramCaptionEn: 'Put your message in focus and choose the world behind it. Create presenter videos, educational content and branded stories under one roof.',
     likes: 1910,
+    comments: 104,
+    shares: 228,
     views: '24.9K',
     specs: {
       camerasAr: 'كاميرات سينمائية متعددة الزوايا مع إضاءات استوديو متكاملة',

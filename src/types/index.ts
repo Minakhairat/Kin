@@ -43,6 +43,8 @@ export interface PortfolioItem {
   instagramCaptionAr: string;
   instagramCaptionEn: string;
   likes?: number;
+  comments?: number;
+  shares?: number;
   views?: string;
   instagramShortcode?: string;
   instagramEmbedUrl?: string;
