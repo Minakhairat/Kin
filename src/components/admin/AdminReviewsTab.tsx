@@ -31,6 +31,7 @@ export const AdminReviewsTab: React.FC<AdminReviewsTabProps> = ({ lang }) => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Edit / Reply modal state
   const [editingReview, setEditingReview] = useState<ReviewItem | null>(null);
@@ -92,7 +93,7 @@ export const AdminReviewsTab: React.FC<AdminReviewsTabProps> = ({ lang }) => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm(isAr ? 'هل أنت متأكد من حذف هذا التقييم نهائياً؟' : 'Permanently delete this review?')) return;
+    setConfirmDeleteId(null);
     // Optimistic UI update
     setReviews((prev) => prev.filter((r) => r.id !== id));
     try {
@@ -372,13 +373,30 @@ export const AdminReviewsTab: React.FC<AdminReviewsTabProps> = ({ lang }) => {
                     <span>{isAr ? 'تعديل / رد' : 'Edit'}</span>
                   </button>
 
-                  <button
-                    onClick={() => handleDelete(rev.id)}
-                    title={isAr ? 'حذف نهائي' : 'Delete'}
-                    className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  {confirmDeleteId === rev.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleDelete(rev.id)}
+                        className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        {isAr ? 'تأكيد' : 'Confirm'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+                      >
+                        {isAr ? 'إلغاء' : 'Cancel'}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDeleteId(rev.id)}
+                      title={isAr ? 'حذف نهائي' : 'Delete'}
+                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
               </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { COMPANY_INFO, PODCAST_PACKAGES, REELS_PACKAGES } from '../data/content';
 import { Language, BookingFormData } from '../types';
 import { Phone, MessageCircle, Instagram, MapPin, Send, CheckCircle2, Calendar, Clock, Sparkles } from 'lucide-react';
+import { createBookingRequest } from '../services/studioErpService';
 
 interface BookingContactProps {
   lang: Language;
@@ -32,7 +33,7 @@ export const BookingContact: React.FC<BookingContactProps> = ({
 
   const allPackages = [...PODCAST_PACKAGES, ...REELS_PACKAGES];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.phone) return;
 
@@ -40,8 +41,26 @@ export const BookingContact: React.FC<BookingContactProps> = ({
     setBookingRef(ref);
     setSubmitted(true);
 
-    // Format WhatsApp prefilled message
     const selectedPkg = allPackages.find((p) => p.id === formData.packageId);
+    const category = selectedPkg?.category === 'reels' ? 'reels' : (selectedPkg?.category === 'podcasts' ? 'podcasts' : 'custom');
+
+    // Persist reservation to Firebase Firestore
+    try {
+      await createBookingRequest({
+        clientName: formData.fullName.trim(),
+        clientPhone: formData.phone.trim(),
+        category,
+        packageId: formData.packageId,
+        bookingDate: formData.preferredDate || new Date().toISOString().split('T')[0],
+        totalAmountEGP: calculatedTotal || selectedPkg?.price || 0,
+        status: 'pending',
+        notes: `[Booking Ref: ${ref}] ${formData.notes || ''} ${formData.addons?.length ? `Addons: ${formData.addons.join(', ')}` : ''}`.trim(),
+      });
+    } catch (err) {
+      console.warn('Booking reservation Firestore notice:', err);
+    }
+
+    // Format WhatsApp prefilled message
     const msg =
       lang === 'ar'
         ? `طلب حجز جديد في استوديو KIN [${ref}]:\n- الاسم: ${formData.fullName}\n- الهاتف: ${formData.phone}\n- الخدمة: ${selectedPkg?.category === 'podcasts' ? 'بودكاست ولقاءات' : 'ريلز شهرية'}\n- الباقة: ${selectedPkg?.name || 'مخصصة'}\n- التاريخ المفضل: ${formData.preferredDate || 'أقرب ميعاد متاح'}\n${formData.notes ? `- ملاحظات: ${formData.notes}\n` : ''}أرجو تأكيد الحجز وإرسال تفاصيل جلسة التصوير.`

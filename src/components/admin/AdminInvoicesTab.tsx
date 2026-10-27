@@ -103,6 +103,7 @@ export const AdminInvoicesTab: React.FC<AdminInvoicesTabProps> = ({ lang }) => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'partial' | 'unpaid'>('all');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Manual Invoice Editor Modal
   const [showEditor, setShowEditor] = useState(false);
@@ -274,7 +275,7 @@ export const AdminInvoicesTab: React.FC<AdminInvoicesTabProps> = ({ lang }) => {
   };
 
   const handleDelete = async (id: string, invNum: string) => {
-    if (!window.confirm(isAr ? `هل أنت متأكد من حذف فاتورة "${invNum}" نهائياً؟` : `Delete invoice ${invNum}?`)) return;
+    setConfirmDeleteId(null);
     try {
       await deleteInvoice(id);
       setInvoices((prev) => prev.filter((i) => i.id !== id));
@@ -509,13 +510,30 @@ export const AdminInvoicesTab: React.FC<AdminInvoicesTabProps> = ({ lang }) => {
                       <Share2 className="w-3.5 h-3.5" />
                     </button>
 
-                    <button
-                      onClick={() => handleDelete(inv.id, inv.invoiceNumber)}
-                      title={isAr ? 'حذف الفاتورة' : 'Delete'}
-                      className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {confirmDeleteId === inv.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDelete(inv.id, inv.invoiceNumber)}
+                          className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          {isAr ? 'تأكيد' : 'Confirm'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+                        >
+                          {isAr ? 'إلغاء' : 'Cancel'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(inv.id)}
+                        title={isAr ? 'حذف الفاتورة' : 'Delete'}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

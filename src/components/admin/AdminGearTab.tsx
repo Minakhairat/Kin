@@ -85,6 +85,7 @@ export const AdminGearTab: React.FC<AdminGearTabProps> = ({ lang }) => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // New Gear Modal
   const [showAddModal, setShowAddModal] = useState(false);
@@ -180,7 +181,7 @@ export const AdminGearTab: React.FC<AdminGearTabProps> = ({ lang }) => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm(isAr ? 'حذف هذا الجهاز من العهدة نهائياً؟' : 'Remove equipment from inventory?')) return;
+    setConfirmDeleteId(null);
     try {
       setErrorMessage(null);
       setGearList((prev) => prev.filter((item) => item.id !== id));
@@ -295,13 +296,30 @@ export const AdminGearTab: React.FC<AdminGearTabProps> = ({ lang }) => {
                 <h4 className="font-bold text-sm text-neutral-900 dark:text-white leading-snug">
                   {item.name}
                 </h4>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  title={isAr ? 'حذف المعدة' : 'Delete'}
-                  className="p-1 text-neutral-400 hover:text-red-500 rounded transition-colors cursor-pointer"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                {confirmDeleteId === item.id ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="px-1.5 py-0.5 rounded bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold transition-colors cursor-pointer"
+                    >
+                      {isAr ? 'حذف' : 'Del'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-[11px] font-medium transition-colors cursor-pointer"
+                    >
+                      {isAr ? 'إلغاء' : 'X'}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDeleteId(item.id)}
+                    title={isAr ? 'حذف المعدة' : 'Delete'}
+                    className="p-1 text-neutral-400 hover:text-red-500 rounded transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
 
               <div className="flex items-center gap-2 mb-3">

@@ -48,6 +48,7 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
   const [coupons, setCoupons] = useState<CouponCodeItem[]>([]);
 
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Package Full Edit Modal state
   const [editingPkg, setEditingPkg] = useState<PackageCMSItem | null>(null);
@@ -215,7 +216,7 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
   };
 
   const handleDeletePkg = async (id: string, name: string) => {
-    if (!window.confirm(isAr ? `هل أنت متأكد من حذف باقة "${name}" نهائياً من الموقع؟` : `Delete package "${name}"?`)) return;
+    setConfirmDeleteId(null);
     try {
       // Mark as inactive or delete doc
       await savePackageCMS({
@@ -267,7 +268,7 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
   };
 
   const handleDeletePromo = async (id: string) => {
-    if (!window.confirm(isAr ? 'حذف هذا العرض؟' : 'Delete this promotion?')) return;
+    setConfirmDeleteId(null);
     try {
       await deletePromotion(id);
       notify('success', isAr ? 'تم حذف العرض' : 'Promotion deleted');
@@ -318,7 +319,7 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
   };
 
   const handleDeleteCouponItem = async (id: string, code: string) => {
-    if (!window.confirm(isAr ? `حذف كود الخصم "${code}" نهائياً؟` : `Delete coupon "${code}"?`)) return;
+    setConfirmDeleteId(null);
     try {
       await deleteCoupon(id);
       notify('success', isAr ? 'تم حذف الكوبون' : 'Coupon deleted');
@@ -510,13 +511,30 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
                       {pkg.isActive !== false ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5 text-red-500" />}
                     </button>
 
-                    <button
-                      onClick={() => handleDeletePkg(pkg.id, pkg.nameAr)}
-                      title={isAr ? 'حذف نهائي' : 'Delete'}
-                      className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {confirmDeleteId === pkg.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDeletePkg(pkg.id, pkg.nameAr)}
+                          className="px-2 py-0.5 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          {isAr ? 'تأكيد' : 'Confirm'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+                        >
+                          {isAr ? 'إلغاء' : 'Cancel'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(pkg.id)}
+                        title={isAr ? 'حذف نهائي' : 'Delete'}
+                        className="p-1.5 rounded-lg text-neutral-400 hover:text-red-500 hover:bg-red-500/10 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
 
                   <button
@@ -669,12 +687,29 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => handleDeletePromo(promo.id)}
-                      className="p-2 text-neutral-400 hover:text-red-500 cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {confirmDeleteId === promo.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleDeletePromo(promo.id)}
+                          className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                        >
+                          {isAr ? 'تأكيد' : 'Confirm'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+                        >
+                          {isAr ? 'إلغاء' : 'Cancel'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(promo.id)}
+                        className="p-2 text-neutral-400 hover:text-red-500 cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -841,12 +876,29 @@ export const AdminPricingCmsTab: React.FC<AdminPricingCmsTabProps> = ({ lang }) 
                             {c.isActive ? (isAr ? 'تعطيل / إنهاء' : 'Expire') : (isAr ? 'إعادة تفعيل' : 'Activate')}
                           </button>
 
-                          <button
-                            onClick={() => handleDeleteCouponItem(c.id, c.code)}
-                            className="p-1 text-neutral-400 hover:text-red-500 cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {confirmDeleteId === c.id ? (
+                            <span className="inline-flex items-center gap-1">
+                              <button
+                                onClick={() => handleDeleteCouponItem(c.id, c.code)}
+                                className="px-1.5 py-0.5 rounded bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold transition-colors cursor-pointer"
+                              >
+                                {isAr ? 'تأكيد' : 'Confirm'}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                className="px-1.5 py-0.5 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-[11px] font-medium transition-colors cursor-pointer"
+                              >
+                                {isAr ? 'إلغاء' : 'Cancel'}
+                              </button>
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDeleteId(c.id)}
+                              className="p-1 text-neutral-400 hover:text-red-500 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

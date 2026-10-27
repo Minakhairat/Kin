@@ -32,6 +32,7 @@ export const AdminCalendarTab: React.FC<AdminCalendarTabProps> = ({ lang }) => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Add Booking Modal state
   const [showAddModal, setShowAddModal] = useState(false);
@@ -97,7 +98,7 @@ export const AdminCalendarTab: React.FC<AdminCalendarTabProps> = ({ lang }) => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm(isAr ? 'حذف هذا الحجز؟' : 'Delete this booking?')) return;
+    setConfirmDeleteId(null);
     try {
       await deleteBooking(id);
     } catch (err: unknown) {
@@ -289,12 +290,29 @@ export const AdminCalendarTab: React.FC<AdminCalendarTabProps> = ({ lang }) => {
                     <option value="cancelled">{isAr ? 'ملغي' : 'Cancelled'}</option>
                   </select>
 
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="p-1.5 text-neutral-400 hover:text-red-500 rounded"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {confirmDeleteId === item.id ? (
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="px-2 py-1 rounded bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        {isAr ? 'تأكيد' : 'Confirm'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteId(null)}
+                        className="px-2 py-1 rounded bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 text-xs font-medium transition-colors cursor-pointer"
+                      >
+                        {isAr ? 'إلغاء' : 'Cancel'}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDeleteId(item.id)}
+                      className="p-1.5 text-neutral-400 hover:text-red-500 rounded cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
 
               </div>

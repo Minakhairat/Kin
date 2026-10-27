@@ -3,6 +3,7 @@ import { COMPANY_INFO, PODCAST_PACKAGES, REELS_PACKAGES } from '../data/content'
 import { Language, BookingFormData, CouponCodeItem } from '../types';
 import { X, Send, CheckCircle2, Phone, MessageCircle, Tag, Check, AlertCircle } from 'lucide-react';
 import { validateCouponCode } from '../services/couponsService';
+import { createBookingRequest } from '../services/studioErpService';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -79,7 +80,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     setCouponError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName || !formData.phone) return;
 
@@ -92,6 +93,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           ? `\n- كود الخصم المطبق: ${appliedCoupon.code} (خصم ${discountAmount.toLocaleString()} ج.م)\n- الإجمالي بعد الخصم: ${finalTotal.toLocaleString()} ج.م`
           : `\n- Coupon Code Applied: ${appliedCoupon.code} (-${discountAmount.toLocaleString()} EGP)\n- Total After Discount: ${finalTotal.toLocaleString()} EGP`)
       : (isAr ? `\n- الإجمالي التقديري: ${finalTotal.toLocaleString()} ج.م` : `\n- Total: ${finalTotal.toLocaleString()} EGP`);
+
+    // Persist reservation to Firebase Firestore
+    try {
+      await createBookingRequest({
+        clientName: formData.fullName.trim(),
+        clientPhone: formData.phone.trim(),
+        category: (formData.service as any) || (selectedPkg?.category === 'reels' ? 'reels' : 'podcasts'),
+        packageId: formData.packageId,
+        bookingDate: formData.preferredDate || new Date().toISOString().split('T')[0],
+        totalAmountEGP: finalTotal,
+        status: 'pending',
+        notes: `[Booking Ref: ${ref}] ${appliedCoupon ? `Coupon: ${appliedCoupon.code} (-${discountAmount} EGP). ` : ''}${formData.notes || ''} ${formData.addons?.length ? `Addons: ${formData.addons.join(', ')}` : ''}`.trim(),
+      });
+    } catch (err) {
+      console.warn('Booking reservation Firestore notice:', err);
+    }
 
     const msg =
       isAr
